@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyMind — AI Study Assistant</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Plus Jakarta Sans','sans-serif']},colors:{primary:{50:'#f0fdfa',100:'#ccfbf1',200:'#99f6e4',300:'#5eead4',400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e',800:'#115e59',900:'#134e4a'},accent:{400:'#fbbf24',500:'#f59e0b',600:'#d97706'},surface:{50:'#f8fafb',100:'#f0f4f8',200:'#e2e8f0',800:'#141e30',900:'#0b1120',950:'#070d18'}}}}}
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;overflow-x:hidden}
+#boot-loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#f8fafb;z-index:9999;transition:opacity .5s}
+#boot-loader.hide{opacity:0;pointer-events:none}
+#boot-loader .spinner{width:48px;height:48px;border:4px solid #ccfbf1;border-top-color:#0d9488;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+.dark ::-webkit-scrollbar-thumb{background:#334155}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes blob{0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%}50%{border-radius:30% 60% 70% 40%/50% 60% 30% 60%}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.anim-fadeIn{animation:fadeIn .5s ease both}
+.anim-scaleIn{animation:scaleIn .3s ease both}
+.anim-float{animation:float 3s ease-in-out infinite}
+.anim-blob{animation:blob 8s ease-in-out infinite}
+.shimmer{background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);background-size:200% 100%;animation:shimmer 2s infinite}
+.flip-card{perspective:1000px}
+.flip-inner{transition:transform .6s;transform-style:preserve-3d;position:relative}
+.flip-inner.flipped{transform:rotateY(180deg)}
+.flip-front,.flip-back{backface-visibility:hidden;position:absolute;inset:0}
+.flip-back{transform:rotateY(180deg)}
+.glass{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.toast-enter{animation:slideInRight .3s ease both}
+.line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+input:focus,textarea:focus,select:focus{outline:none;box-shadow:0 0 0 3px rgba(13,148,136,.2)}
+.dark input:focus,.dark textarea:focus,.dark select:focus{box-shadow:0 0 0 3px rgba(20,184,166,.25)}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body class="bg-surface-50 dark:bg-surface-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+<!-- Loading screen shown before React mounts -->
+<div id="boot-loader">
+  <div style="text-align:center">
+    <div class="spinner" style="margin:0 auto 16px"></div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:18px;color:#0d9488">StudyMind</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:#94a3b8;margin-top:4px">Loading application...</div>
+  </div>
+</div>
+
+<div id="root"></div>
+
+<script type="text/babel">
+const {useState,useEffect,useRef,useContext,createContext,useMemo,useCallback}=React;
+
+/* ──────────────────── Sample Data ──────────────────── */
+const SAMPLE_DOCS=[
+  {id:'d1',name:'Introduction to Machine Learning',type:'pdf',size:'4.2 MB',uploadDate:'2024-12-01',category:'Computer Science',content:'Machine learning is a subset of artificial intelligence that focuses on building systems that learn from data. Key concepts include supervised learning, unsupervised learning, and reinforcement learning. Algorithms like linear regression, decision trees, and neural networks form the foundation. The bias-variance tradeoff is crucial for model selection.'},
+  {id:'d2',name:'Organic Chemistry - Reaction Mechanisms',type:'pdf',size:'3.8 MB',uploadDate:'2024-11-28',category:'Chemistry',content:'Organic chemistry studies carbon-containing compounds. Nucleophilic substitution reactions (SN1 and SN2) are fundamental mechanisms. SN2 reactions are concerted with inversion of stereochemistry, while SN1 reactions proceed through a carbocation intermediate.'},
+  {id:'d3',name:'Data Structures - Trees and Graphs',type:'docx',size:'2.1 MB',uploadDate:'2024-11-25',category:'Computer Science',content:'Trees are hierarchical data structures with a root node and child nodes. Binary trees have at most two children per node. BST maintains ordering for efficient search. Graphs consist of vertices and edges. BFS uses a queue, DFS uses a stack.'},
+  {id:'d4',name:'Modern European History 1815-1914',type:'txt',size:'1.5 MB',uploadDate:'2024-11-20',category:'History',content:'The Congress of Vienna in 1815 reshaped Europe after Napoleon. The 19th century saw the rise of nationalism, industrialization, and imperialism. German unification under Bismarck transformed the balance of power.'},
+  {id:'d5',name:'Calculus II - Integration Techniques',type:'pdf',size:'5.0 MB',uploadDate:'2024-11-15',category:'Mathematics',content:'Integration by parts follows from the product rule. Trigonometric substitution handles integrals with radicals. Partial fractions decompose rational functions. Improper integrals have infinite limits or discontinuities.'},
+  {id:'d6',name:'Psychology - Cognitive Behavioral Therapy',type:'docx',size:'2.7 MB',uploadDate:'2024-11-10',category:'Psychology',content:'CBT is a structured psychotherapy focusing on the connection between thoughts, feelings, and behaviors. Cognitive distortions include all-or-nothing thinking, overgeneralization, and catastrophizing.'}
+];
+
+const SAMPLE_FLASHCARDS=[
+  {id:'f1',docId:'d1',front:'What is the bias-variance tradeoff?',back:'The balance between a model\'s ability to fit training data (low bias) and generalize to unseen data (low variance). Increasing complexity reduces bias but increases variance.',saved:true},
+  {id:'f2',docId:'d1',front:'Difference between supervised and unsupervised learning?',back:'Supervised learning uses labeled data to predict outcomes. Unsupervised learning finds patterns in unlabeled data.',saved:true},
+  {id:'f3',docId:'d2',front:'What distinguishes SN1 from SN2 reactions?',back:'SN1: two-step via carbocation, unimolecular rate, racemization. SN2: one-step concerted, bimolecular rate, inversion of configuration.',saved:false},
+  {id:'f4',docId:'d3',front:'When should you use BFS vs DFS?',back:'BFS finds shortest paths in unweighted graphs. DFS is better for topological sorting and cycle detection.',saved:true},
+  {id:'f5',docId:'d5',front:'When do you use trigonometric substitution?',back:'When the integrand contains square roots of quadratic expressions like sqrt(a^2-x^2), sqrt(a^2+x^2), or sqrt(x^2-a^2).',saved:false},
+  {id:'f6',docId:'d6',front:'What are common cognitive distortions in CBT?',back:'All-or-nothing thinking, overgeneralization, mental filter, disqualifying positives, jumping to conclusions, magnification, emotional reasoning, should statements, labeling, personalization.',saved:true},
+  {id:'f7',docId:'d1',front:'What is overfitting and how do you prevent it?',back:'Overfitting: model learns noise, performs well on training but poorly on test data. Prevention: cross-validation, regularization, more data, early stopping, dropout.',saved:false},
+  {id:'f8',docId:'d4',front:'What was the significance of the Congress of Vienna?',back:'It reshaped Europe after Napoleon\'s defeat, restoring monarchies and establishing a balance of power that suppressed nationalist movements.',saved:true}
+];
+
+const SAMPLE_QUIZZES=[
+  {id:'q1',docId:'d1',title:'Machine Learning Fundamentals',saved:true,score:80,completedAt:'2024-12-02',
+   questions:[
+     {id:'q1a',question:'Which type of learning uses labeled training data?',options:['Unsupervised Learning','Reinforcement Learning','Supervised Learning','Self-supervised Learning'],correct:2,userAnswer:2},
+     {id:'q1b',question:'What happens when a model overfits?',options:['It generalizes well','It learns noise in training data','It has high bias','It underperforms on training data'],correct:1,userAnswer:1},
+     {id:'q1c',question:'Which is NOT a regularization technique?',options:['L1 Regularization','Dropout','Data Augmentation','Gradient Descent'],correct:3,userAnswer:0},
+     {id:'q1d',question:'The bias-variance tradeoff suggests:',options:['Increasing complexity increases both bias and variance','Decreasing complexity always improves performance','Reducing bias often increases variance','Variance and bias are independent'],correct:2,userAnswer:2},
+     {id:'q1e',question:'Which algorithm handles non-linear classification boundaries?',options:['Linear Regression','Logistic Regression','SVM with RBF kernel','Naive Bayes'],correct:2,userAnswer:2}
+   ]},
+  {id:'q2',docId:'d2',title:'Organic Chemistry Reactions',saved:true,score:60,completedAt:'2024-11-29',
+   questions:[
+     {id:'q2a',question:'SN2 reactions result in:',options:['Racemization','Inversion of configuration','Retention of configuration','No stereochemical change'],correct:1,userAnswer:1},
+     {id:'q2b',question:'Which factor favors SN1 over SN2?',options:['Strong nucleophile','Primary substrate','Tertiary substrate','Low temperature'],correct:2,userAnswer:2},
+     {id:'q2c',question:'E2 elimination requires:',options:['A carbocation intermediate','Anti-periplanar geometry','Only a weak base','A polar protic solvent'],correct:1,userAnswer:0},
+     {id:'q2d',question:'A curved arrow in mechanisms represents:',options:['Nuclear decay','Electron pair movement','Photon emission','Atomic vibration'],correct:1,userAnswer:1},
+     {id:'q2e',question:'Which is the best solvent for SN1?',options:['Acetone','Water','Hexane','Diethyl ether'],correct:1,userAnswer:2}
+   ]}
+];
+
+const STUDY_DATA={
+  weekly:[120,95,140,80,160,110,135],
+  quizScores:[75,80,60,90,85,95],
+  subjects:{'Computer Science':35,'Chemistry':20,'Mathematics':18,'History':12,'Psychology':15},
+  streak:12,totalHours:840,totalFlashcards:156,totalQuizzes:24
+};
+
+/* ──────────────────── Context ──────────────────── */
+const AppContext=createContext();
+
+/* ──────────────────── Toast ──────────────────── */
+function Toast({message,type,onClose}){
+  useEffect(()=>{const t=setTimeout(onClose,3000);return()=>clearTimeout(t)},[onClose]);
+  const colors={success:'bg-emerald-500',error:'bg-red-500',info:'bg-teal-600'};
+  const icons={success:'fa-check-circle',error:'fa-exclamation-circle',info:'fa-info-circle'};
+  return(
+    <div className={"toast-enter fixed top-6 right-6 z-[100] "+(colors[type]||colors.info)+" text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium"}>
+      <i className={"fas "+(icons[type]||icons.info)}></i>
+      <span>{message}</span>
+      <button onClick={onClose} className="ml-2 opacity-70 hover:opacity-100"><i className="fas fa-times"></i></button>
+    </div>
+  );
+}
+
+/* ──────────────────── Spinner ──────────────────── */
+function Spinner({size}){
+  const s={sm:'w-5 h-5',md:'w-8 h-8',lg:'w-12 h-12'}[size||'md']||'w-8 h-8';
+  return <div className={s+" rounded-full"} style={{borderWidth:'3px',borderStyle:'solid',borderColor:'#99f6e4',borderTopColor:'#0d9488',animation:'spin .8s linear infinite'}}/>;
+}
+
+/* ──────────────────── Sidebar ──────────────────── */
+function Sidebar({current,setCurrent,collapsed,setCollapsed}){
+  const {dark,setDark}=useContext(AppContext);
+  const items=[
+    {id:'dashboard',icon:'fa-th-large',label:'Dashboard'},
+    {id:'upload',icon:'fa-cloud-upload-alt',label:'Upload'},
+    {id:'documents',icon:'fa-folder-open',label:'Documents'},
+    {id:'summarize',icon:'fa-compress-alt',label:'Summarize'},
+    {id:'flashcards',icon:'fa-clone',label:'Flashcards'},
+    {id:'quiz',icon:'fa-question-circle',label:'Quiz'},
+    {id:'chat',icon:'fa-comments',label:'AI Chat'},
+    {id:'progress',icon:'fa-chart-line',label:'Progress'},
+    {id:'profile',icon:'fa-user-circle',label:'Profile'},
+  ];
+  return(
+    <>
+      {!collapsed&&<div className="lg:hidden fixed inset-0 bg-black/40 z-40" onClick={()=>setCollapsed(true)}/>}
+      <aside className={"fixed top-0 left-0 h-full z-50 transition-all duration-300 flex flex-col bg-white dark:bg-surface-800 border-r border-gray-200 dark:border-gray-700/50 "+(collapsed?"-translate-x-full lg:translate-x-0 lg:w-20":"translate-x-0 w-64")}>
+        <div className={"flex items-center h-16 border-b border-gray-100 dark:border-gray-700/50 shrink-0 "+(collapsed?"lg:justify-center":"px-6")}>
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-md shadow-primary-500/25">
+            <i className="fas fa-brain text-white text-sm"></i>
+          </div>
+          {!collapsed&&<span className="ml-3 text-lg font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">StudyMind</span>}
+        </div>
+        <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+          {items.map(function(it){
+            const active=current===it.id;
+            return(
+              <button key={it.id} onClick={function(){setCurrent(it.id);setCollapsed(true);}}
+                className={"w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all "+(active?"bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 shadow-sm":"text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5")+(collapsed?" lg:justify-center lg:px-0":"")}>
+                <i className={"fas "+it.icon+" w-5 text-center "+(active?"text-primary-600 dark:text-primary-400":"text-gray-400 dark:text-gray-500")}></i>
+                {!collapsed&&<span>{it.label}</span>}
+              </button>
+            );
+          })}
+        </nav>
+        <div className={"p-4 border-t border-gray-100 dark:border-gray-700/50 shrink-0 "+(collapsed?"lg:flex lg:justify-center":"")}>
+          <button onClick={function(){setDark(!dark);}} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition">
+            <i className={"fas "+(dark?"fa-sun text-amber-400":"fa-moon")+" w-5 text-center"}></i>
+            {(!collapsed)&&<span>{dark?'Light Mode':'Dark Mode'}</span>}
+          </button>
+        </div>
+      </aside>
+    </>
+  );
+}
+
+/* ──────────────────── Top Bar ──────────────────── */
+function TopBar({setCollapsed}){
+  const {dark,setDark,user}=useContext(AppContext);
+  const [search,setSearch]=useState('');
+  return(
+    <header className="sticky top-0 z-30 h-16 bg-white/80 dark:bg-surface-800/80 glass border-b border-gray-200/60 dark:border-gray-700/40 flex items-center justify-between px-4 lg:px-6">
+      <div className="flex items-center gap-3">
+        <button onClick={function(){setCollapsed(function(c){return !c;})}} className="w-9 h-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 flex items-center justify-center text-gray-500 transition" aria-label="Toggle sidebar">
+          <i className="fas fa-bars text-sm"></i>
+        </button>
+        <div className="hidden sm:flex items-center bg-gray-100 dark:bg-white/5 rounded-xl px-3 py-2 w-64 lg:w-80">
+          <i className="fas fa-search text-gray-400 text-xs mr-2"></i>
+          <input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder="Search documents, flashcards..." className="bg-transparent text-sm w-full outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500"/>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <button onClick={function(){setDark(!dark);}} className="w-9 h-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 flex items-center justify-center text-gray-500 transition" aria-label="Toggle theme">
+          <i className={"fas "+(dark?"fa-sun text-amber-400":"fa-moon")}></i>
+        </button>
+        <button className="w-9 h-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 flex items-center justify-center text-gray-500 transition relative" aria-label="Notifications">
+          <i className="fas fa-bell text-sm"></i>
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+        </button>
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold ml-1 cursor-pointer shadow-md shadow-primary-500/20">
+          {user&&user.name?user.name.charAt(0):'S'}
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ──────────────────── Auth Page ──────────────────── */
+function AuthPage(){
+  const {setUser}=useContext(AppContext);
+  const [mode,setMode]=useState('login');
+  const [form,setForm]=useState({name:'',email:'',password:'',confirm:''});
+  const [loading,setLoading]=useState(false);
+  const [error,setError]=useState('');
+
+  function handleSubmit(e){
+    e.preventDefault();setError('');
+    if(mode==='signup'&&form.password!==form.confirm){setError('Passwords do not match');return;}
+    if(!form.email||!form.password){setError('Please fill in all fields');return;}
+    setLoading(true);
+    setTimeout(function(){
+      setUser({name:form.name||form.email.split('@')[0],email:form.email,joined:'2024-09-01'});
+      setLoading(false);
+    },1200);
+  }
+
+  return(
+    <div className="min-h-screen flex">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 via-primary-700 to-teal-800 relative overflow-hidden items-center justify-center p-12">
+        <div className="absolute top-20 -left-20 w-72 h-72 bg-primary-400/20 rounded-full blur-3xl anim-blob"></div>
+        <div className="absolute bottom-20 -right-10 w-96 h-96 bg-accent-500/10 rounded-full blur-3xl anim-blob" style={{animationDelay:'4s'}}></div>
+        <div className="relative z-10 max-w-md">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center"><i className="fas fa-brain text-white text-xl"></i></div>
+            <span className="text-2xl font-bold text-white">StudyMind</span>
+          </div>
+          <h1 className="text-4xl font-extrabold text-white leading-tight mb-4">Your AI-Powered Study Companion</h1>
+          <p className="text-primary-100 text-lg leading-relaxed mb-8">Upload your study materials and let AI create summaries, flashcards, and quizzes. Study smarter, not harder.</p>
+          <div className="space-y-4">
+            {[{icon:'fa-compress-alt',text:'Instant note summarization'},{icon:'fa-clone',text:'Auto-generated flashcards'},{icon:'fa-question-circle',text:'AI-powered quizzes'},{icon:'fa-comments',text:'Chat with your documents'}].map(function(f,i){
+              return(
+                <div key={i} className="flex items-center gap-3 text-primary-100 anim-fadeIn" style={{animationDelay:(i*150)+'ms'}}>
+                  <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center"><i className={"fas "+f.icon+" text-sm text-accent-400"}></i></div>
+                  <span className="text-sm font-medium">{f.text}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      <div className="flex-1 flex items-center justify-center p-6 bg-surface-50 dark:bg-surface-900">
+        <div className="w-full max-w-md anim-fadeIn">
+          <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg shadow-primary-500/25"><i className="fas fa-brain text-white"></i></div>
+            <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">StudyMind</span>
+          </div>
+          <h2 className="text-2xl font-bold mb-1">{mode==='login'?'Welcome back':mode==='signup'?'Create your account':'Reset password'}</h2>
+          <p className="text-gray-500 dark:text-gray-400 mb-8 text-sm">
+            {mode==='login'?"Don't have an account?":mode==='signup'?'Already have an account?':'Remember your password?'}
+            <button onClick={function(){setMode(mode==='login'?'signup':'login');setError('');}} className="text-primary-600 dark:text-primary-400 font-semibold ml-1 hover:underline">
+              {mode==='login'?'Sign up':'Log in'}
+            </button>
+          </p>
+          {error&&<div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-sm"><i className="fas fa-exclamation-circle mr-2"></i>{error}</div>}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {mode==='signup'&&<div>
+              <label className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">Full Name</label>
+              <div className="relative"><i className="fas fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+              <input type="text" value={form.name} onChange={function(e){setForm(Object.assign({},form,{name:e.target.value}));}} className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm transition" placeholder="John Doe" required/></div>
+            </div>}
+            <div>
+              <label className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">Email Address</label>
+              <div className="relative"><i className="fas fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+              <input type="email" value={form.email} onChange={function(e){setForm(Object.assign({},form,{email:e.target.value}));}} className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm transition" placeholder="you@university.edu" required/></div>
+            </div>
+            {mode!=='forgot'&&<div>
+              <label className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">Password</label>
+              <div className="relative"><i className="fas fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+              <input type="password" value={form.password} onChange={function(e){setForm(Object.assign({},form,{password:e.target.value}));}} className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm transition" placeholder="Min. 8 characters" required/></div>
+            </div>}
+            {mode==='signup'&&<div>
+              <label className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">Confirm Password</label>
+              <div className="relative"><i className="fas fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+              <input type="password" value={form.confirm} onChange={function(e){setForm(Object.assign({},form,{confirm:e.target.value}));}} className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm transition" placeholder="Repeat password" required/></div>
+            </div>}
+            {mode==='login'&&<div className="flex justify-end">
+              <button type="button" onClick={function(){setMode('forgot');setError('');}} className="text-sm text-primary-600 dark:text-primary-400 font-semibold hover:underline">Forgot password?</button>
+            </div>}
+            <button type="submit" disabled={loading} className="w-full py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white rounded-xl font-semibold text-sm shadow-lg shadow-primary-500/25 transition disabled:opacity-60 flex items-center justify-center gap-2">
+              {loading?<Spinner size="sm"/>:mode==='login'?'Log In':mode==='signup'?'Create Account':'Send Reset Link'}
+            </button>
+          </form>
+          {mode==='login'&&<div className="mt-6">
+            <div className="relative flex items-center justify-center my-4"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200 dark:border-gray-700"></div></div><span className="relative bg-surface-50 dark:bg-surface-900 px-3 text-xs text-gray-400">or continue with</span></div>
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={function(){setLoading(true);setTimeout(function(){setUser({name:'Student',email:'student@google.com',joined:'2024-09-01'});},800);}} className="flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/5 transition"><i className="fab fa-google text-red-500"></i>Google</button>
+              <button onClick={function(){setLoading(true);setTimeout(function(){setUser({name:'Student',email:'student@uni.edu',joined:'2024-09-01'});},800);}} className="flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/5 transition"><i className="fas fa-university text-primary-600"></i>University</button>
+            </div>
+          </div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────── Dashboard ──────────────────── */
+function Dashboard({setCurrent}){
+  const {dark}=useContext(AppContext);
+  const weeklyRef=useRef(null);
+  const subjectRef=useRef(null);
+  const scoresRef=useRef(null);
+  const weeklyChart=useRef(null);
+  const subjectChart=useRef(null);
+  const scoresChart=useRef(null);
+
+  useEffect(function(){
+    if(!weeklyRef.current)return;
+    if(weeklyChart.current)weeklyChart.current.destroy();
+    var ctx=weeklyRef.current.getContext('2d');
+    var grad=ctx.createLinearGradient(0,0,0,250);
+    grad.addColorStop(0,dark?'rgba(20,184,166,0.3)':'rgba(13,148,136,0.15)');
+    grad.addColorStop(1,dark?'rgba(20,184,166,0)':'rgba(13,148,136,0)');
+    weeklyChart.current=new Chart(ctx,{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{data:STUDY_DATA.weekly,borderColor:'#0d9488',backgroundColor:grad,fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#0d9488',pointBorderColor:dark?'#141e30':'#fff',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:dark?'#8896ab':'#94a3b8',font:{size:11}}},y:{grid:{color:dark?'rgba(255,255,255,.05)':'rgba(0,0,0,.05)'},ticks:{color:dark?'#8896ab':'#94a3b8',font:{size:11},callback:function(v){return v+'m';}}}}}});
+    return function(){if(weeklyChart.current)weeklyChart.current.destroy();};
+  },[dark]);
+
+  useEffect(function(){
+    if(!subjectRef.current)return;
+    if(subjectChart.current)subjectChart.current.destroy();
+    subjectChart.current=new Chart(subjectRef.current.getContext('2d'),{type:'doughnut',data:{labels:Object.keys(STUDY_DATA.subjects),datasets:[{data:Object.values(STUDY_DATA.subjects),backgroundColor:['#0d9488','#f59e0b','#6366f1','#ec4899','#8b5cf6'],borderWidth:0,spacing:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{position:'right',labels:{color:dark?'#cbd5e1':'#475569',font:{size:11},padding:12,usePointStyle:true,pointStyleWidth:8}}}}});
+    return function(){if(subjectChart.current)subjectChart.current.destroy();};
+  },[dark]);
+
+  useEffect(function(){
+    if(!scoresRef.current)return;
+    if(scoresChart.current)scoresChart.current.destroy();
+    scoresChart.current=new Chart(scoresRef.current.getContext('2d'),{type:'bar',data:{labels:['Quiz 1','Quiz 2','Quiz 3','Quiz 4','Quiz 5','Quiz 6'],datasets:[{data:STUDY_DATA.quizScores,backgroundColor:STUDY_DATA.quizScores.map(function(s){return s>=80?'rgba(13,148,136,0.7)':'rgba(245,158,11,0.7)';}),borderRadius:8,barThickness:28}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:dark?'#8896ab':'#94a3b8',font:{size:11}}},y:{grid:{color:dark?'rgba(255,255,255,.05)':'rgba(0,0,0,.05)'},min:0,max:100,ticks:{color:dark?'#8896ab':'#94a3b8',font:{size:11},callback:function(v){return v+'%';}}}}}});
+    return function(){if(scoresChart.current)scoresChart.current.destroy();};
+  },[dark]);
+
+  var stats=[
+    {icon:'fa-fire',label:'Day Streak',value:STUDY_DATA.streak,color:'from-orange-400 to-red-500',shadow:'shadow-orange-500/20'},
+    {icon:'fa-clock',label:'Total Hours',value:STUDY_DATA.totalHours,color:'from-primary-400 to-primary-600',shadow:'shadow-primary-500/20'},
+    {icon:'fa-clone',label:'Flashcards',value:STUDY_DATA.totalFlashcards,color:'from-violet-400 to-violet-600',shadow:'shadow-violet-500/20'},
+    {icon:'fa-check-double',label:'Quizzes Taken',value:STUDY_DATA.totalQuizzes,color:'from-amber-400 to-amber-600',shadow:'shadow-amber-500/20'}
+  ];
+
+  return(
+    <div className="anim-fadeIn space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div><h1 className="text-2xl font-bold">Dashboard</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Welcome back! Here's your study overview.</p></div>
+        <button onClick={function(){setCurrent('upload');}} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition">
+          <i className="fas fa-plus text-xs"></i>Upload Material
+        </button>
+      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map(function(s,i){
+          return(
+            <div key={i} className="bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm hover:shadow-md transition anim-fadeIn" style={{animationDelay:(i*80)+'ms'}}>
+              <div className={"w-10 h-10 rounded-xl bg-gradient-to-br "+s.color+" "+s.shadow+" shadow-lg flex items-center justify-center mb-3"}>
+                <i className={"fas "+s.icon+" text-white text-sm"}></i>
+              </div>
+              <div className="text-2xl font-bold">{s.value}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">{s.label}</div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="grid lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm">
+          <h3 className="font-semibold mb-4 text-sm">Weekly Study Time</h3>
+          <div style={{height:220}}><canvas ref={weeklyRef}/></div>
+        </div>
+        <div className="bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm">
+          <h3 className="font-semibold mb-4 text-sm">Subject Distribution</h3>
+          <div style={{height:220}}><canvas ref={subjectRef}/></div>
+        </div>
+      </div>
+      <div className="grid lg:grid-cols-2 gap-4">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm">
+          <h3 className="font-semibold mb-4 text-sm">Quiz Scores</h3>
+          <div style={{height:200}}><canvas ref={scoresRef}/></div>
+        </div>
+        <div className="bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-sm">Recent Documents</h3>
+            <button onClick={function(){setCurrent('documents');}} className="text-xs text-primary-600 dark:text-primary-400 font-semibold hover:underline">View All</button>
+          </div>
+          <div className="space-y-3">
+            {SAMPLE_DOCS.slice(0,4).map(function(d){
+              var typeClass=d.type==='pdf'?'bg-red-100 dark:bg-red-900/20 text-red-500':d.type==='docx'?'bg-blue-100 dark:bg-blue-900/20 text-blue-500':'bg-gray-100 dark:bg-gray-800 text-gray-500';
+              var typeIcon=d.type==='pdf'?'fa-file-pdf':d.type==='docx'?'fa-file-word':'fa-file-alt';
+              return(
+                <div key={d.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition cursor-pointer">
+                  <div className={"w-9 h-9 rounded-lg flex items-center justify-center "+typeClass}><i className={"fas "+typeIcon+" text-sm"}></i></div>
+                  <div className="flex-1 min-w-0"><div className="text-sm font-medium truncate">{d.name}</div><div className="text-xs text-gray-400">{d.size} · {d.uploadDate}</div></div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────── Upload ──────────────────── */
+function UploadPage(){
+  var ctx=useContext(AppContext);
+  var [dragOver,setDragOver]=useState(false);
+  var [uploading,setUploading]=useState(false);
+  var [progress,setProgress]=useState(0);
+
+  function handleFiles(files){
+    if(!files||!files.length)return;
+    setUploading(true);setProgress(0);
+    var interval=setInterval(function(){setProgress(function(p){if(p>=100){clearInterval(interval);return 100}return p+Math.random()*15;});},200);
+    setTimeout(function(){
+      clearInterval(interval);setProgress(100);
+      var newDoc={id:'d'+Date.now(),name:files[0].name,type:files[0].name.split('.').pop(),size:(files[0].size/1024/1024).toFixed(1)+' MB',uploadDate:new Date().toISOString().split('T')[0],category:'General',content:'Uploaded document content for AI processing.'};
+      ctx.setDocs(function(prev){return [newDoc].concat(prev);});
+      setUploading(false);ctx.addToast('Document uploaded successfully!','success');
+    },2500);
+  }
+
+  return(
+    <div className="anim-fadeIn max-w-2xl mx-auto space-y-6">
+      <div><h1 className="text-2xl font-bold">Upload Study Material</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Upload PDF, DOCX, or TXT files for AI processing.</p></div>
+      <div className={"relative border-2 border-dashed rounded-2xl p-12 text-center transition-all "+(dragOver?"border-primary-500 bg-primary-50 dark:bg-primary-900/10 scale-[1.02]":"border-gray-300 dark:border-gray-600 hover:border-primary-400")}
+        onDragOver={function(e){e.preventDefault();setDragOver(true);}} onDragLeave={function(){setDragOver(false);}}
+        onDrop={function(e){e.preventDefault();setDragOver(false);handleFiles(e.dataTransfer.files);}}>
+        <input type="file" accept=".pdf,.docx,.txt" className="absolute inset-0 opacity-0 cursor-pointer" onChange={function(e){handleFiles(e.target.files);}}/>
+        <div className={"w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 transition "+(dragOver?"bg-primary-100 dark:bg-primary-900/30":"bg-gray-100 dark:bg-white/5")}>
+          <i className={"fas fa-cloud-upload-alt text-2xl "+(dragOver?"text-primary-500":"text-gray-400")}></i>
+        </div>
+        <p className="font-semibold mb-1">{dragOver?'Drop your file here':'Drag and drop your files'}</p>
+        <p className="text-sm text-gray-400">or click to browse. Supports PDF, DOCX, TXT (max 25 MB)</p>
+      </div>
+      {uploading&&<div className="bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm">
+        <div className="flex items-center justify-between mb-2"><span className="text-sm font-medium">Uploading...</span><span className="text-sm text-primary-600 dark:text-primary-400 font-semibold">{Math.min(Math.round(progress),100)}%</span></div>
+        <div className="w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-primary-500 to-primary-400 rounded-full transition-all duration-300" style={{width:Math.min(progress,100)+'%'}}/></div>
+      </div>}
+      <div className="bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm">
+        <h3 className="font-semibold text-sm mb-3">Supported File Types</h3>
+        <div className="grid grid-cols-3 gap-3">
+          {[{ext:'PDF',icon:'fa-file-pdf',color:'text-red-500 bg-red-50 dark:bg-red-900/20'},{ext:'DOCX',icon:'fa-file-word',color:'text-blue-500 bg-blue-50 dark:bg-blue-900/20'},{ext:'TXT',icon:'fa-file-alt',color:'text-gray-500 bg-gray-50 dark:bg-gray-800'}].map(function(f){
+            return(<div key={f.ext} className={"flex flex-col items-center gap-2 p-4 rounded-xl "+f.color}><i className={"fas "+f.icon+" text-xl"}></i><span className="text-xs font-bold">{f.ext}</span></div>);
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────── Documents ──────────────────── */
+function DocumentsPage({setCurrent}){
+  var ctx=useContext(AppContext);
+  var [search,setSearch]=useState('');
+  var [filter,setFilter]=useState('all');
+
+  var filtered=ctx.docs.filter(function(d){
+    var matchSearch=d.name.toLowerCase().indexOf(search.toLowerCase())>=0||d.category.toLowerCase().indexOf(search.toLowerCase())>=0;
+    var matchFilter=filter==='all'||d.type===filter;
+    return matchSearch&&matchFilter;
+  });
+
+  return(
+    <div className="anim-fadeIn space-y-6">
+      <div><h1 className="text-2xl font-bold">Study Materials</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">All your uploaded documents in one place.</p></div>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex-1 flex items-center bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 rounded-xl px-3 py-2">
+          <i className="fas fa-search text-gray-400 text-sm mr-2"></i>
+          <input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder="Search documents..." className="bg-transparent text-sm w-full outline-none placeholder:text-gray-400"/>
+        </div>
+        <div className="flex gap-2">
+          {['all','pdf','docx','txt'].map(function(f){
+            return(<button key={f} onClick={function(){setFilter(f);}} className={"px-3 py-2 rounded-xl text-xs font-semibold transition "+(filter===f?"bg-primary-600 text-white shadow-md shadow-primary-500/25":"bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 text-gray-600 dark:text-gray-400 hover:border-primary-300")}>{f.toUpperCase()}</button>);
+          })}
+        </div>
+      </div>
+      {filtered.length===0?<div className="text-center py-16"><i className="fas fa-folder-open text-4xl text-gray-300 dark:text-gray-600 mb-3 block"></i><p className="text-gray-400 text-sm">No documents found</p></div>:
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filtered.map(function(d,i){
+          var typeClass=d.type==='pdf'?'bg-red-100 dark:bg-red-900/20 text-red-500':d.type==='docx'?'bg-blue-100 dark:bg-blue-900/20 text-blue-500':'bg-gray-100 dark:bg-gray-800 text-gray-500';
+          var typeIcon=d.type==='pdf'?'fa-file-pdf':d.type==='docx'?'fa-file-word':'fa-file-alt';
+          return(
+            <div key={d.id} className="bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm hover:shadow-md transition cursor-pointer group anim-fadeIn" style={{animationDelay:(i*60)+'ms'}}>
+              <div className="flex items-start justify-between mb-3">
+                <div className={"w-10 h-10 rounded-xl flex items-center justify-center "+typeClass}><i className={"fas "+typeIcon+" text-sm"}></i></div>
+                <span className="text-xs font-semibold text-gray-400 bg-gray-100 dark:bg-white/5 px-2 py-1 rounded-lg">{d.type.toUpperCase()}</span>
+              </div>
+              <h3 className="font-semibold text-sm mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition line-clamp-2">{d.name}</h3>
+              <p className="text-xs text-gray-400 mb-3">{d.category} · {d.size}</p>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-400">{d.uploadDate}</span>
+                <div className="flex gap-1.5">
+                  <button onClick={function(){setCurrent('summarize');}} className="w-7 h-7 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 flex items-center justify-center hover:bg-primary-100 dark:hover:bg-primary-900/40 transition" title="Summarize"><i className="fas fa-compress-alt text-xs"></i></button>
+                  <button onClick={function(){setCurrent('flashcards');}} className="w-7 h-7 rounded-lg bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 flex items-center justify-center hover:bg-violet-100 dark:hover:bg-violet-900/40 transition" title="Flashcards"><i className="fas fa-clone text-xs"></i></button>
+                  <button onClick={function(){setCurrent('quiz');}} className="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 flex items-center justify-center hover:bg-amber-100 dark:hover:bg-amber-900/40 transition" title="Quiz"><i className="fas fa-question text-xs"></i></button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>}
+    </div>
+  );
+}
+
+/* ──────────────────── Summarize ──────────────────── */
+function SummarizePage(){
+  var ctx=useContext(AppContext);
+  var [selectedDoc,setSelectedDoc]=useState('');
+  var [summary,setSummary]=useState('');
+  var [loading,setLoading]=useState(false);
+
+  function generateSummary(){
+    if(!selectedDoc){ctx.addToast('Please select a document first','error');return;}
+    setLoading(true);setSummary('');
+    var doc=ctx.docs.find(function(d){return d.id===selectedDoc;});
+    var fullSummary='**Key Points from "'+doc.name+'":**\n\nThis document covers fundamental concepts in '+doc.category+'. The main topics include:\n\n1. **Core Principles**: The material establishes foundational definitions and frameworks essential for understanding advanced topics.\n\n2. **Key Mechanisms**: Several important mechanisms and processes are described in detail, with emphasis on how they interact.\n\n3. **Practical Applications**: The document connects theoretical concepts to real-world applications.\n\n4. **Critical Analysis**: Important distinctions and comparisons are drawn between related concepts.\n\n5. **Study Recommendations**: Focus on understanding relationships between concepts rather than memorizing individual facts.';
+    var idx=0;
+    var typeInterval=setInterval(function(){
+      setSummary(fullSummary.slice(0,idx));idx+=3;
+      if(idx>=fullSummary.length){setSummary(fullSummary);clearInterval(typeInterval);setLoading(false);ctx.addToast('Summary generated!','success');}
+    },20);
+  }
+
+  return(
+    <div className="anim-fadeIn max-w-3xl mx-auto space-y-6">
+      <div><h1 className="text-2xl font-bold">AI Summarizer</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Get concise summaries of your study materials.</p></div>
+      <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1.5">Select Document</label>
+          <select value={selectedDoc} onChange={function(e){setSelectedDoc(e.target.value);}} className="w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm">
+            <option value="">Choose a document...</option>
+            {ctx.docs.map(function(d){return <option key={d.id} value={d.id}>{d.name}</option>;})}
+          </select>
+        </div>
+        <button onClick={generateSummary} disabled={loading} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary-500/25 transition disabled:opacity-60">
+          {loading?<><Spinner size="sm"/><span>Generating...</span></>:<><i className="fas fa-magic text-xs"></i>Generate Summary</>}
+        </button>
+      </div>
+      {summary&&<div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm anim-fadeIn">
+        <div className="flex items-center justify-between mb-4"><h3 className="font-semibold text-sm">Summary</h3><button onClick={function(){navigator.clipboard.writeText(summary);ctx.addToast('Copied to clipboard!','success');}} className="text-xs text-primary-600 dark:text-primary-400 font-semibold hover:underline"><i className="fas fa-copy mr-1"></i>Copy</button></div>
+        <div className="text-sm leading-relaxed whitespace-pre-wrap">{summary.split('**').map(function(s,i){return i%2===1?React.createElement('strong',{key:i},s):s;})}</div>
+      </div>}
+    </div>
+  );
+}
+
+/* ──────────────────── Flashcards ──────────────────── */
+function FlashcardsPage(){
+  var ctx=useContext(AppContext);
+  var [selectedDoc,setSelectedDoc]=useState('');
+  var [generating,setGenerating]=useState(false);
+  var [currentIdx,setCurrentIdx]=useState(0);
+  var [flipped,setFlipped]=useState(false);
+  var [showSaved,setShowSaved]=useState(false);
+
+  var visibleCards=showSaved?ctx.flashcards.filter(function(f){return f.saved;}):ctx.flashcards;
+  var card=visibleCards[currentIdx];
+
+  function generateFlashcards(){
+    if(!selectedDoc){ctx.addToast('Please select a document','error');return;}
+    setGenerating(true);
+    setTimeout(function(){
+      var newCards=[
+        {id:'f'+Date.now()+'a',docId:selectedDoc,front:'What is the primary focus of this document?',back:'The document focuses on establishing core concepts and their practical applications, emphasizing understanding over memorization.',saved:false},
+        {id:'f'+Date.now()+'b',docId:selectedDoc,front:'How do the key mechanisms interact?',back:'The mechanisms form an interconnected system where each process influences others, creating feedback loops.',saved:false},
+        {id:'f'+Date.now()+'c',docId:selectedDoc,front:'What distinguishes theoretical from practical applications?',back:'Theoretical frameworks provide general principles. Practical applications account for real-world constraints and variations.',saved:false},
+        {id:'f'+Date.now()+'d',docId:selectedDoc,front:'Why is comparative analysis important?',back:'It reveals strengths and limitations of different approaches, enabling informed selection based on requirements.',saved:false}
+      ];
+      ctx.setFlashcards(function(prev){return newCards.concat(prev);});
+      setCurrentIdx(0);setFlipped(false);setGenerating(false);
+      ctx.addToast('4 flashcards generated!','success');
+    },2000);
+  }
+
+  function toggleSave(id){
+    ctx.setFlashcards(function(prev){return prev.map(function(f){return f.id===id?Object.assign({},f,{saved:!f.saved}):f;});});
+    var target=ctx.flashcards.find(function(f){return f.id===id;});
+    ctx.addToast(target&&target.saved?'Flashcard unsaved':'Flashcard saved!','success');
+  }
+
+  return(
+    <div className="anim-fadeIn max-w-3xl mx-auto space-y-6">
+      <div><h1 className="text-2xl font-bold">Flashcards</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Generate and study AI-powered flashcards.</p></div>
+      <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <select value={selectedDoc} onChange={function(e){setSelectedDoc(e.target.value);}} className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm">
+            <option value="">Select document...</option>
+            {ctx.docs.map(function(d){return <option key={d.id} value={d.id}>{d.name}</option>;})}
+          </select>
+          <button onClick={generateFlashcards} disabled={generating} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-600 to-violet-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-violet-500/25 transition disabled:opacity-60">
+            {generating?<Spinner size="sm"/>:<i className="fas fa-magic text-xs"></i>} Generate
+          </button>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={function(){setShowSaved(false);}} className={"px-3 py-1.5 rounded-lg text-xs font-semibold transition "+(!showSaved?"bg-primary-600 text-white":"bg-gray-100 dark:bg-white/5 text-gray-500")}>All Cards</button>
+          <button onClick={function(){setShowSaved(true);}} className={"px-3 py-1.5 rounded-lg text-xs font-semibold transition "+(showSaved?"bg-primary-600 text-white":"bg-gray-100 dark:bg-white/5 text-gray-500")}>Saved Only</button>
+        </div>
+      </div>
+      {card?(
+        <div className="space-y-4">
+          <div className="flip-card w-full cursor-pointer" style={{height:280}} onClick={function(){setFlipped(!flipped);}}>
+            <div className={"flip-inner w-full h-full "+(flipped?"flipped":"")}>
+              <div className="flip-front bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl p-8 flex flex-col items-center justify-center text-white shadow-xl shadow-primary-500/20">
+                <span className="text-xs font-semibold uppercase tracking-wider opacity-70 mb-4">Question</span>
+                <p className="text-lg font-semibold text-center leading-relaxed">{card.front}</p>
+                <span className="text-xs opacity-50 mt-4">Click to reveal answer</span>
+              </div>
+              <div className="flip-back bg-white dark:bg-surface-800 rounded-2xl p-8 flex flex-col items-center justify-center border border-gray-100 dark:border-gray-700/40 shadow-xl">
+                <span className="text-xs font-semibold uppercase tracking-wider text-primary-600 dark:text-primary-400 mb-4">Answer</span>
+                <p className="text-sm text-center leading-relaxed text-gray-700 dark:text-gray-300">{card.back}</p>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <button onClick={function(){setCurrentIdx(Math.max(0,currentIdx-1));setFlipped(false);}} disabled={currentIdx===0} className="w-10 h-10 rounded-xl bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 flex items-center justify-center disabled:opacity-30 hover:shadow-md transition"><i className="fas fa-chevron-left text-sm"></i></button>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-500">{currentIdx+1} / {visibleCards.length}</span>
+              <button onClick={function(){toggleSave(card.id);}} className={"w-10 h-10 rounded-xl flex items-center justify-center transition "+(card.saved?"bg-amber-100 dark:bg-amber-900/20 text-amber-500":"bg-gray-100 dark:bg-white/5 text-gray-400 hover:text-amber-500")}><i className="fas fa-bookmark"></i></button>
+            </div>
+            <button onClick={function(){setCurrentIdx(Math.min(visibleCards.length-1,currentIdx+1));setFlipped(false);}} disabled={currentIdx>=visibleCards.length-1} className="w-10 h-10 rounded-xl bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 flex items-center justify-center disabled:opacity-30 hover:shadow-md transition"><i className="fas fa-chevron-right text-sm"></i></button>
+          </div>
+        </div>
+      ):<div className="text-center py-16"><i className="fas fa-clone text-4xl text-gray-300 dark:text-gray-600 mb-3 block"></i><p className="text-gray-400 text-sm">Generate flashcards from a document to get started</p></div>}
+    </div>
+  );
+}
+
+/* ──────────────────── Quiz ──────────────────── */
+function QuizPage(){
+  var ctx=useContext(AppContext);
+  var [selectedDoc,setSelectedDoc]=useState('');
+  var [generating,setGenerating]=useState(false);
+  var [activeQuiz,setActiveQuiz]=useState(null);
+  var [currentQ,setCurrentQ]=useState(0);
+  var [answers,setAnswers]=useState({});
+  var [showResults,setShowResults]=useState(false);
+  var [showSaved,setShowSaved]=useState(false);
+
+  function generateQuiz(){
+    if(!selectedDoc){ctx.addToast('Please select a document','error');return;}
+    setGenerating(true);
+    setTimeout(function(){
+      var docName='';
+      var found=ctx.docs.find(function(d){return d.id===selectedDoc;});
+      if(found)docName=found.name;
+      var newQuiz={id:'q'+Date.now(),docId:selectedDoc,title:docName+' Quiz',saved:false,
+        questions:[
+          {id:'q'+Date.now()+'a',question:'Which concept is most fundamental to understanding this subject?',options:['Advanced applications only','Core principles and definitions','Historical context exclusively','Mathematical proofs'],correct:1},
+          {id:'q'+Date.now()+'b',question:'What is the primary benefit of understanding these mechanisms?',options:['Memorization of facts','Ability to predict and explain outcomes','Faster assignment completion','Avoiding further study'],correct:1},
+          {id:'q'+Date.now()+'c',question:'Which approach best demonstrates mastery?',options:['Reciting definitions word-for-word','Applying concepts to novel scenarios','Copying textbook examples','Highlighting passages'],correct:1},
+          {id:'q'+Date.now()+'d',question:'When comparing approaches, what should you consider?',options:['Only the most popular one','Their respective strengths and limitations','The one with fewest steps','The most recent only'],correct:1},
+          {id:'q'+Date.now()+'e',question:'How does theory support practice?',options:['It does not relate to practice','It provides a framework for informed decisions','It replaces practice','It makes practice unnecessary'],correct:1}
+        ]};
+      ctx.setQuizzes(function(prev){return [newQuiz].concat(prev);});
+      setActiveQuiz(newQuiz);setCurrentQ(0);setAnswers({});setShowResults(false);
+      setGenerating(false);ctx.addToast('Quiz generated!','success');
+    },2200);
+  }
+
+  function submitQuiz(){
+    var score=0;
+    activeQuiz.questions.forEach(function(q){if(answers[q.id]===q.correct)score++;});
+    var pct=Math.round(score/activeQuiz.questions.length*100);
+    var updated=Object.assign({},activeQuiz,{score:pct,completedAt:new Date().toISOString().split('T')[0],questions:activeQuiz.questions.map(function(q){return Object.assign({},q,{userAnswer:answers[q.id]});})});
+    ctx.setQuizzes(function(prev){return prev.map(function(q){return q.id===updated.id?updated:q;});});
+    setActiveQuiz(updated);setShowResults(true);
+    ctx.addToast('Quiz complete! Score: '+pct+'%','success');
+  }
+
+  var savedQuizzes=ctx.quizzes.filter(function(q){return q.saved;});
+  var displayQuizzes=showSaved?savedQuizzes:ctx.quizzes;
+
+  if(activeQuiz&&!showResults){
+    var q=activeQuiz.questions[currentQ];
+    return(
+      <div className="anim-fadeIn max-w-2xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold">{activeQuiz.title}</h2>
+          <span className="text-sm text-gray-500">{currentQ+1}/{activeQuiz.questions.length}</span>
+        </div>
+        <div className="w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-primary-500 to-primary-400 rounded-full transition-all" style={{width:((currentQ+1)/activeQuiz.questions.length*100)+'%'}}/>
+        </div>
+        <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm">
+          <p className="font-semibold mb-5">{q.question}</p>
+          <div className="space-y-3">
+            {q.options.map(function(opt,i){
+              var selected=answers[q.id]===i;
+              return(
+                <button key={i} onClick={function(){var a=Object.assign({},answers);a[q.id]=i;setAnswers(a);}}
+                  className={"w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition "+(selected?"border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400":"border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-600")}>
+                  <span className={"inline-flex items-center justify-center w-6 h-6 rounded-lg mr-3 text-xs font-bold "+(selected?"bg-primary-600 text-white":"bg-gray-100 dark:bg-white/5 text-gray-500")}>{String.fromCharCode(65+i)}</span>
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <div className="flex justify-between">
+          <button onClick={function(){setCurrentQ(Math.max(0,currentQ-1));}} disabled={currentQ===0} className="px-4 py-2.5 bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 rounded-xl text-sm font-medium disabled:opacity-30 transition">Previous</button>
+          {currentQ<activeQuiz.questions.length-1?
+            <button onClick={function(){setCurrentQ(currentQ+1);}} className="px-4 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold shadow-md shadow-primary-500/25 transition">Next</button>:
+            <button onClick={submitQuiz} className="px-5 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary-500/25 transition">Submit Quiz</button>
+          }
+        </div>
+      </div>
+    );
+  }
+
+  if(activeQuiz&&showResults){
+    var score=activeQuiz.score;
+    return(
+      <div className="anim-fadeIn max-w-2xl mx-auto space-y-6">
+        <div className="bg-white dark:bg-surface-800 rounded-2xl p-8 border border-gray-100 dark:border-gray-700/40 shadow-sm text-center">
+          <div className={"w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-4 "+(score>=80?"bg-emerald-100 dark:bg-emerald-900/20":score>=60?"bg-amber-100 dark:bg-amber-900/20":"bg-red-100 dark:bg-red-900/20")}>
+            <span className={"text-3xl font-bold "+(score>=80?"text-emerald-600":score>=60?"text-amber-600":"text-red-600")}>{score}%</span>
+          </div>
+          <h2 className="text-xl font-bold mb-1">{score>=80?'Excellent Work!':score>=60?'Good Effort!':'Keep Studying!'}</h2>
+          <p className="text-gray-500 text-sm">You answered {activeQuiz.questions.filter(function(q){return q.userAnswer===q.correct;}).length} of {activeQuiz.questions.length} questions correctly.</p>
+          <div className="flex justify-center gap-3 mt-6">
+            <button onClick={function(){setActiveQuiz(null);setShowResults(false);}} className="px-5 py-2.5 bg-gray-100 dark:bg-white/5 rounded-xl text-sm font-medium transition">Back to Quizzes</button>
+            <button onClick={function(){ctx.setQuizzes(function(prev){return prev.map(function(q){return q.id===activeQuiz.id?Object.assign({},q,{saved:true}):q;});});ctx.addToast('Quiz saved!','success');}} className="px-5 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary-500/25 transition"><i className="fas fa-bookmark mr-2"></i>Save Quiz</button>
+          </div>
+        </div>
+        <div className="space-y-3">
+          {activeQuiz.questions.map(function(q,i){
+            var correct=q.userAnswer===q.correct;
+            return(
+              <div key={q.id} className={"p-4 rounded-xl border "+(correct?"border-emerald-200 dark:border-emerald-800/40 bg-emerald-50/50 dark:bg-emerald-900/10":"border-red-200 dark:border-red-800/40 bg-red-50/50 dark:bg-red-900/10")}>
+                <div className="flex items-start gap-3">
+                  <span className={"w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 "+(correct?"bg-emerald-500 text-white":"bg-red-500 text-white")}><i className={"fas "+(correct?"fa-check":"fa-times")+" text-xs"}></i></span>
+                  <div><p className="text-sm font-medium mb-1">{q.question}</p>
+                  {!correct&&<p className="text-xs text-gray-500">Your answer: {q.options[q.userAnswer]} · Correct: <strong>{q.options[q.correct]}</strong></p>}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  return(
+    <div className="anim-fadeIn max-w-3xl mx-auto space-y-6">
+      <div><h1 className="text-2xl font-bold">Quizzes</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Test your knowledge with AI-generated quizzes.</p></div>
+      <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <select value={selectedDoc} onChange={function(e){setSelectedDoc(e.target.value);}} className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm">
+            <option value="">Select document...</option>
+            {ctx.docs.map(function(d){return <option key={d.id} value={d.id}>{d.name}</option>;})}
+          </select>
+          <button onClick={generateQuiz} disabled={generating} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-400 text-white rounded-xl text-sm font-semibold shadow-lg shadow-amber-500/25 transition disabled:opacity-60">
+            {generating?<Spinner size="sm"/>:<i className="fas fa-magic text-xs"></i>}Generate Quiz
+          </button>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={function(){setShowSaved(false);}} className={"px-3 py-1.5 rounded-lg text-xs font-semibold transition "+(!showSaved?"bg-primary-600 text-white":"bg-gray-100 dark:bg-white/5 text-gray-500")}>All Quizzes</button>
+          <button onClick={function(){setShowSaved(true);}} className={"px-3 py-1.5 rounded-lg text-xs font-semibold transition "+(showSaved?"bg-primary-600 text-white":"bg-gray-100 dark:bg-white/5 text-gray-500")}>Saved Only</button>
+        </div>
+      </div>
+      {displayQuizzes.length===0?<div className="text-center py-16"><i className="fas fa-question-circle text-4xl text-gray-300 dark:text-gray-600 mb-3 block"></i><p className="text-gray-400 text-sm">Generate a quiz from a document to get started</p></div>:
+      <div className="space-y-3">
+        {displayQuizzes.map(function(q,i){
+          return(
+            <div key={q.id} className="bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm hover:shadow-md transition anim-fadeIn" style={{animationDelay:(i*60)+'ms'}}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-sm">{q.title}</h3>
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="text-xs text-gray-400">{q.questions.length} questions</span>
+                    {q.score!==undefined&&<span className={"text-xs font-semibold "+(q.score>=80?"text-emerald-500":q.score>=60?"text-amber-500":"text-red-500")}>Score: {q.score}%</span>}
+                    {q.completedAt&&<span className="text-xs text-gray-400">{q.completedAt}</span>}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={function(){setActiveQuiz(q);setCurrentQ(0);setAnswers({});setShowResults(false);}} className="px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-lg text-xs font-semibold hover:bg-primary-100 dark:hover:bg-primary-900/40 transition">
+                    {q.score!==undefined?'Review':'Take Quiz'}
+                  </button>
+                  <button onClick={function(){ctx.setQuizzes(function(prev){return prev.map(function(x){return x.id===q.id?Object.assign({},x,{saved:!x.saved}):x;});});ctx.addToast(q.saved?'Quiz unsaved':'Quiz saved!','success');}} className={"w-8 h-8 rounded-lg flex items-center justify-center transition "+(q.saved?"text-amber-500 bg-amber-50 dark:bg-amber-900/20":"text-gray-400 bg-gray-50 dark:bg-white/5")}>
+                    <i className="fas fa-bookmark text-xs"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>}
+    </div>
+  );
+}
+
+/* ──────────────────── Chat ──────────────────── */
+function ChatPage(){
+  var ctx=useContext(AppContext);
+  var [messages,setMessages]=useState([{role:'assistant',content:'Hello! I can answer questions based on your uploaded documents. Select a document and ask me anything!'}]);
+  var [input,setInput]=useState('');
+  var [typing,setTyping]=useState(false);
+  var [selectedDoc,setSelectedDoc]=useState('');
+  var chatEnd=useRef(null);
+
+  useEffect(function(){if(chatEnd.current)chatEnd.current.scrollIntoView({behavior:'smooth'});},[messages]);
+
+  function sendMessage(){
+    if(!input.trim())return;
+    var userMsg={role:'user',content:input};
+    setMessages(function(prev){return prev.concat([userMsg]);});setInput('');setTyping(true);
+    var lower=input.toLowerCase();
+    var response='Based on the document, I can provide insights about the key concepts, mechanisms, and applications discussed. Could you ask a more specific question?';
+    if(lower.indexOf('what')>=0)response='The document covers several key concepts fundamental to the subject. The main ideas revolve around core principles, their mechanisms, and practical applications.';
+    else if(lower.indexOf('how')>=0)response='The processes described work through interconnected steps. Each builds on the previous one, and understanding the underlying mechanisms is crucial for grasping the overall workflow.';
+    else if(lower.indexOf('why')>=0)response='Understanding these concepts is important because they form the foundation for more advanced topics. The practical applications demonstrate why mastering these fundamentals matters.';
+    else if(lower.indexOf('compare')>=0||lower.indexOf('difference')>=0)response='The document highlights key differences and similarities between approaches. Each has strengths and limitations, and the choice depends on specific context and requirements.';
+    else if(lower.indexOf('explain')>=0||lower.indexOf('describe')>=0)response='The core idea is that these concepts are interconnected and build upon each other. The document progressively introduces more complex ideas, always connecting back to foundational principles.';
+    var docName='your document';
+    var found=ctx.docs.find(function(d){return d.id===selectedDoc;});
+    if(found)docName=found.name;
+    response='Based on "'+docName+'":\n\n'+response;
+    setTimeout(function(){setMessages(function(prev){return prev.concat([{role:'assistant',content:response}]);});setTyping(false);},1500);
+  }
+
+  return(
+    <div className="anim-fadeIn flex flex-col" style={{height:'calc(100vh - 8rem)'}}>
+      <div className="mb-4"><h1 className="text-2xl font-bold">AI Chat</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Ask questions about your uploaded documents.</p></div>
+      <div className="flex items-center gap-3 mb-4">
+        <select value={selectedDoc} onChange={function(e){setSelectedDoc(e.target.value);}} className="px-4 py-2 bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 rounded-xl text-sm">
+          <option value="">Select a document...</option>
+          {ctx.docs.map(function(d){return <option key={d.id} value={d.id}>{d.name}</option>;})}
+        </select>
+      </div>
+      <div className="flex-1 bg-white dark:bg-surface-800 rounded-2xl border border-gray-100 dark:border-gray-700/40 shadow-sm flex flex-col overflow-hidden min-h-0">
+        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          {messages.map(function(m,i){
+            return(
+              <div key={i} className={"flex "+(m.role==='user'?"justify-end":"justify-start")+" anim-fadeIn"}>
+                <div className={"max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed "+(m.role==='user'?"bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-br-md":"bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 rounded-bl-md")}>
+                  {m.role==='assistant'&&<div className="flex items-center gap-2 mb-2"><div className="w-5 h-5 rounded-md bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center"><i className="fas fa-brain text-primary-600 dark:text-primary-400 text-xs"></i></div><span className="text-xs font-semibold text-primary-600 dark:text-primary-400">StudyMind AI</span></div>}
+                  <div className="whitespace-pre-wrap">{m.content}</div>
+                </div>
+              </div>
+            );
+          })}
+          {typing&&<div className="flex justify-start"><div className="bg-gray-100 dark:bg-white/5 px-4 py-3 rounded-2xl rounded-bl-md"><div className="flex gap-1"><span className="w-2 h-2 bg-gray-400 rounded-full anim-float"></span><span className="w-2 h-2 bg-gray-400 rounded-full anim-float" style={{animationDelay:'0.15s'}}></span><span className="w-2 h-2 bg-gray-400 rounded-full anim-float" style={{animationDelay:'0.3s'}}></span></div></div></div>}
+          <div ref={chatEnd}/>
+        </div>
+        <div className="p-4 border-t border-gray-100 dark:border-gray-700/40">
+          <form onSubmit={function(e){e.preventDefault();sendMessage();}} className="flex gap-2">
+            <input value={input} onChange={function(e){setInput(e.target.value);}} placeholder="Ask about your documents..." className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm"/>
+            <button type="submit" className="w-10 h-10 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl flex items-center justify-center shadow-md shadow-primary-500/25 transition hover:shadow-lg"><i className="fas fa-paper-plane text-sm"></i></button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────── Progress ──────────────────── */
+function ProgressPage(){
+  var {dark}=useContext(AppContext);
+  var chartRef=useRef(null);var chartInst=useRef(null);
+  var [period,setPeriod]=useState('week');
+
+  useEffect(function(){
+    if(!chartRef.current)return;
+    if(chartInst.current)chartInst.current.destroy();
+    var data=period==='week'?STUDY_DATA.weekly:STUDY_DATA.weekly.map(function(v){return v+Math.round(Math.random()*40-20);});
+    var labels=period==='week'?['Mon','Tue','Wed','Thu','Fri','Sat','Sun']:['Wk 1','Wk 2','Wk 3','Wk 4','Wk 5','Wk 6','Wk 7'];
+    var ctx2=chartRef.current.getContext('2d');
+    var grad=ctx2.createLinearGradient(0,0,0,300);
+    grad.addColorStop(0,dark?'rgba(20,184,166,0.3)':'rgba(13,148,136,0.15)');
+    grad.addColorStop(1,dark?'rgba(20,184,166,0)':'rgba(13,148,136,0)');
+    chartInst.current=new Chart(ctx2,{type:'line',data:{labels:labels,datasets:[{data:data,borderColor:'#0d9488',backgroundColor:grad,fill:true,tension:.4,pointRadius:5,pointBackgroundColor:'#0d9488',pointBorderColor:dark?'#141e30':'#fff',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:dark?'#8896ab':'#94a3b8'}},y:{grid:{color:dark?'rgba(255,255,255,.05)':'rgba(0,0,0,.05)'},ticks:{color:dark?'#8896ab':'#94a3b8',callback:function(v){return v+'m';}}}}}});
+    return function(){if(chartInst.current)chartInst.current.destroy();};
+  },[dark,period]);
+
+  var milestones=[
+    {label:'Upload first document',done:true,icon:'fa-cloud-upload-alt'},
+    {label:'Generate first summary',done:true,icon:'fa-compress-alt'},
+    {label:'Create 10 flashcards',done:true,icon:'fa-clone'},
+    {label:'Complete 5 quizzes',done:true,icon:'fa-check-double'},
+    {label:'7-day study streak',done:true,icon:'fa-fire'},
+    {label:'Score 90%+ on a quiz',done:false,icon:'fa-trophy'},
+    {label:'Study 1000 total minutes',done:false,icon:'fa-clock'}
+  ];
+
+  return(
+    <div className="anim-fadeIn space-y-6">
+      <div><h1 className="text-2xl font-bold">Study Progress</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Track your learning journey and achievements.</p></div>
+      <div className="grid sm:grid-cols-3 gap-4">
+        <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-6 text-white shadow-lg shadow-orange-500/20">
+          <div className="flex items-center gap-3 mb-2"><i className="fas fa-fire text-2xl"></i><span className="text-sm font-semibold opacity-80">Current Streak</span></div>
+          <div className="text-4xl font-extrabold">{STUDY_DATA.streak} days</div>
+        </div>
+        <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm">
+          <div className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1">This Week</div>
+          <div className="text-3xl font-bold">{STUDY_DATA.weekly.reduce(function(a,b){return a+b;},0)}<span className="text-sm font-normal text-gray-400 ml-1">min</span></div>
+          <div className="text-xs text-emerald-500 font-semibold mt-1"><i className="fas fa-arrow-up mr-1"></i>12% from last week</div>
+        </div>
+        <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm">
+          <div className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1">Avg Quiz Score</div>
+          <div className="text-3xl font-bold">{Math.round(STUDY_DATA.quizScores.reduce(function(a,b){return a+b;},0)/STUDY_DATA.quizScores.length)}<span className="text-sm font-normal text-gray-400 ml-1">%</span></div>
+          <div className="text-xs text-emerald-500 font-semibold mt-1"><i className="fas fa-arrow-up mr-1"></i>5% improvement</div>
+        </div>
+      </div>
+      <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-sm">Study Activity</h3>
+          <div className="flex gap-2">
+            {['week','month'].map(function(p){return <button key={p} onClick={function(){setPeriod(p);}} className={"px-3 py-1.5 rounded-lg text-xs font-semibold transition "+(period===p?"bg-primary-600 text-white":"bg-gray-100 dark:bg-white/5 text-gray-500")}>{p==='week'?'This Week':'This Month'}</button>;})}
+          </div>
+        </div>
+        <div style={{height:280}}><canvas ref={chartRef}/></div>
+      </div>
+      <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm">
+        <h3 className="font-semibold text-sm mb-4">Achievements</h3>
+        <div className="space-y-3">
+          {milestones.map(function(m,i){
+            return(
+              <div key={i} className={"flex items-center gap-4 p-3 rounded-xl transition "+(m.done?"bg-emerald-50 dark:bg-emerald-900/10":"bg-gray-50 dark:bg-white/5 opacity-50")}>
+                <div className={"w-9 h-9 rounded-xl flex items-center justify-center "+(m.done?"bg-emerald-500 text-white":"bg-gray-200 dark:bg-gray-700 text-gray-400")}>
+                  <i className={"fas "+(m.done?"fa-check":m.icon)+" text-sm"}></i>
+                </div>
+                <span className={"text-sm font-medium "+(m.done?"text-emerald-700 dark:text-emerald-400":"text-gray-500 line-through")}>{m.label}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────── Profile ──────────────────── */
+function ProfilePage(){
+  var ctx=useContext(AppContext);
+  var [editing,setEditing]=useState(false);
+  var [form,setForm]=useState({name:ctx.user?ctx.user.name:'',email:ctx.user?ctx.user.email:'',university:'Stanford University',major:'Computer Science',year:'Junior',bio:'Passionate about learning and leveraging AI to study more efficiently.'});
+
+  function handleSave(){
+    ctx.setUser(Object.assign({},ctx.user,{name:form.name,email:form.email}));
+    setEditing(false);ctx.addToast('Profile updated!','success');
+  }
+
+  function updateForm(key,val){
+    var f=Object.assign({},form);f[key]=val;setForm(f);
+  }
+
+  return(
+    <div className="anim-fadeIn max-w-3xl mx-auto space-y-6">
+      <div><h1 className="text-2xl font-bold">Profile</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage your account settings.</p></div>
+      <div className="bg-white dark:bg-surface-800 rounded-2xl border border-gray-100 dark:border-gray-700/40 shadow-sm overflow-hidden">
+        <div className="h-32 bg-gradient-to-r from-primary-600 via-primary-500 to-teal-400 relative">
+          <div className="absolute -bottom-10 left-6">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-white dark:border-surface-800 shadow-lg">
+              {(form.name||'S').charAt(0).toUpperCase()}
+            </div>
+          </div>
+        </div>
+        <div className="pt-14 px-6 pb-6">
+          <div className="flex items-center justify-between mb-6">
+            <div><h2 className="text-lg font-bold">{form.name}</h2><p className="text-sm text-gray-500 dark:text-gray-400">{form.email}</p></div>
+            <button onClick={editing?handleSave:function(){setEditing(true);}} className={"px-4 py-2 rounded-xl text-sm font-semibold transition "+(editing?"bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-md shadow-primary-500/25":"bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400")}>
+              {editing?<><i className="fas fa-check mr-2"></i>Save</>:<><i className="fas fa-pen mr-2"></i>Edit</>}
+            </button>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {[{label:'Full Name',key:'name'},{label:'Email',key:'email'},{label:'University',key:'university'},{label:'Major',key:'major'},{label:'Year',key:'year'},{label:'Bio',key:'bio'}].map(function(f){
+              return(
+                <div key={f.key} className={f.key==='bio'?'sm:col-span-2':''}>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">{f.label}</label>
+                  {editing?
+                    <input value={form[f.key]} onChange={function(e){updateForm(f.key,e.target.value);}} className="w-full px-3 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm"/>:
+                    <p className="text-sm font-medium py-2">{form[f.key]}</p>
+                  }
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm">
+        <h3 className="font-semibold text-sm mb-4">Study Statistics</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[{label:'Documents',value:6,icon:'fa-file-alt',color:'text-primary-500'},{label:'Flashcards',value:8,icon:'fa-clone',color:'text-violet-500'},{label:'Quizzes',value:2,icon:'fa-question-circle',color:'text-amber-500'},{label:'Hours Studied',value:14,icon:'fa-clock',color:'text-emerald-500'}].map(function(s,i){
+            return(<div key={i} className="text-center p-3 rounded-xl bg-gray-50 dark:bg-white/5"><i className={"fas "+s.icon+" "+s.color+" text-lg mb-2"}></i><div className="text-xl font-bold">{s.value}</div><div className="text-xs text-gray-400 font-medium">{s.label}</div></div>);
+          })}
+        </div>
+      </div>
+      <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm space-y-3">
+        <h3 className="font-semibold text-sm mb-2">Account</h3>
+        <button className="w-full text-left flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition text-sm"><i className="fas fa-lock text-gray-400 w-5 text-center"></i><span>Change Password</span></button>
+        <button className="w-full text-left flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition text-sm"><i className="fas fa-bell text-gray-400 w-5 text-center"></i><span>Notification Preferences</span></button>
+        <button className="w-full text-left flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition text-sm"><i className="fas fa-download text-gray-400 w-5 text-center"></i><span>Export Data</span></button>
+        <button className="w-full text-left flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/10 transition text-sm text-red-500"><i className="fas fa-sign-out-alt w-5 text-center"></i><span>Sign Out</span></button>
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────── App Root ──────────────────── */
+function App(){
+  var [user,setUser]=useState(function(){
+    try{var s=localStorage.getItem('sm_user');if(s)return JSON.parse(s);}catch(e){}
+    return null;
+  });
+  var [dark,setDark]=useState(function(){
+    try{var s=localStorage.getItem('sm_dark');if(s!==null)return JSON.parse(s);}catch(e){}
+    return window.matchMedia('(prefers-color-scheme:dark)').matches;
+  });
+  var [docs,setDocs]=useState(SAMPLE_DOCS);
+  var [flashcards,setFlashcards]=useState(SAMPLE_FLASHCARDS);
+  var [quizzes,setQuizzes]=useState(SAMPLE_QUIZZES);
+  var [currentPage,setCurrentPage]=useState('dashboard');
+  var [sidebarCollapsed,setSidebarCollapsed]=useState(true);
+  var [toast,setToast]=useState(null);
+
+  var addToast=useCallback(function(message,type){setToast({message:message,type:type||'info',id:Date.now()});},[]);
+
+  useEffect(function(){try{localStorage.setItem('sm_user',JSON.stringify(user));}catch(e){}},[user]);
+  useEffect(function(){
+    try{localStorage.setItem('sm_dark',JSON.stringify(dark));}catch(e){}
+    if(dark){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}
+  },[dark]);
+
+  // Hide boot loader once React mounts
+  useEffect(function(){
+    var el=document.getElementById('boot-loader');
+    if(el){el.classList.add('hide');setTimeout(function(){el.style.display='none';},600);}
+  },[]);
+
+  var contextValue=useMemo(function(){
+    return {user:user,setUser:setUser,dark:dark,setDark:setDark,docs:docs,setDocs:setDocs,flashcards:flashcards,setFlashcards:setFlashcards,quizzes:quizzes,setQuizzes:setQuizzes,addToast:addToast};
+  },[user,dark,docs,flashcards,quizzes,addToast]);
+
+  if(!user)return <AuthPage/>;
+
+  var pages={dashboard:Dashboard,upload:UploadPage,documents:DocumentsPage,summarize:SummarizePage,flashcards:FlashcardsPage,quiz:QuizPage,chat:ChatPage,progress:ProgressPage,profile:ProfilePage};
+  var Page=pages[currentPage]||Dashboard;
+
+  return(
+    <AppContext.Provider value={contextValue}>
+      <div className="flex min-h-screen">
+        <Sidebar current={currentPage} setCurrent={setCurrentPage} collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed}/>
+        <div className={"flex-1 transition-all duration-300 "+(sidebarCollapsed?"lg:ml-20":"lg:ml-64")}>
+          <TopBar setCollapsed={setSidebarCollapsed}/>
+          <main className="p-4 lg:p-6 max-w-7xl mx-auto">
+            <Page setCurrent={setCurrentPage}/>
+          </main>
+        </div>
+      </div>
+      {toast&&<Toast key={toast.id} message={toast.message} type={toast.type} onClose={function(){setToast(null);}}/>}
+    </AppContext.Provider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>
