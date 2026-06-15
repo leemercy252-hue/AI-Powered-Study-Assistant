@@ -3,49 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StudyMind — AI Study Assistant</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<title>StudyMind</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
 <script>
-tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Plus Jakarta Sans','sans-serif']},colors:{primary:{50:'#f0fdfa',100:'#ccfbf1',200:'#99f6e4',300:'#5eead4',400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e',800:'#115e59',900:'#134e4a'},accent:{400:'#fbbf24',500:'#f59e0b',600:'#d97706'},surface:{50:'#f8fafb',100:'#f0f4f8',200:'#e2e8f0',800:'#141e30',900:'#0b1120',950:'#070d18'}}}}}
+tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Plus Jakarta Sans','sans-serif']},colors:{primary:{50:'#f0fdfa',100:'#ccfbf1',200:'#99f6e4',300:'#5eead4',400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e',800:'#115e59',900:'#134e4a'},accent:{400:'#fbbf24',500:'#f59e0b'},surface:{50:'#f8fafb',100:'#f0f4f8',200:'#e2e8f0',800:'#141e30',900:'#0b1120'}}}}}
 </script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Plus Jakarta Sans',sans-serif;overflow-x:hidden}
-#boot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#f8fafb;z-index:9999;transition:opacity .6s}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Plus Jakarta Sans',sans-serif;overflow-x:hidden}
+#boot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s}
 #boot.done{opacity:0;pointer-events:none}
 #boot .ring{width:48px;height:48px;border:4px solid #ccfbf1;border-top-color:#0d9488;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
-.dark ::-webkit-scrollbar-thumb{background:#334155}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}.dark ::-webkit-scrollbar-thumb{background:#334155}
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-@keyframes slideR{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes blob{0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%}50%{border-radius:30% 60% 70% 40%/50% 60% 30% 60%}}
-.af{animation:fadeIn .5s ease both}.afr{animation:slideR .3s ease both}.ab{animation:blob 8s ease-in-out infinite}.afl{animation:float 3s ease-in-out infinite}
+.af{animation:fadeIn .5s ease both}.ab{animation:blob 8s ease-in-out infinite}.afl{animation:float 3s ease-in-out infinite}
 .flip-card{perspective:1000px}.flip-inner{transition:transform .6s;transform-style:preserve-3d;position:relative}.flip-inner.flipped{transform:rotateY(180deg)}.flip-front,.flip-back{backface-visibility:hidden;position:absolute;inset:0}.flip-back{transform:rotateY(180deg)}
 .glass{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .lc2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-input:focus,textarea:focus,select:focus{outline:none;box-shadow:0 0 0 3px rgba(13,148,136,.2)}
-.dark input:focus,.dark textarea:focus,.dark select:focus{box-shadow:0 0 0 3px rgba(20,184,166,.25)}
+input:focus,textarea:focus,select:focus{outline:none;box-shadow:0 0 0 3px rgba(13,148,136,.2)}.dark input:focus,.dark textarea:focus,.dark select:focus{box-shadow:0 0 0 3px rgba(20,184,166,.25)}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body class="bg-surface-50 dark:bg-surface-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-<div id="boot"><div style="text-align:center"><div class="ring" style="margin:0 auto 16px"></div><div style="font-weight:700;font-size:18px;color:#0d9488">StudyMind</div><div id="boot-msg" style="font-size:13px;color:#94a3b8;margin-top:4px">Loading...</div></div></div>
+<div id="boot" style="background:#f8fafb"><div style="text-align:center"><div class="ring" style="margin:0 auto 16px"></div><div style="font-weight:700;font-size:18px;color:#0d9488">StudyMind</div><div id="bmsg" style="font-size:13px;color:#94a3b8;margin-top:4px">Loading...</div></div></div>
 <div id="root"></div>
+<script>
+window.onerror=function(m,u,l){var e=document.getElementById('bmsg');if(e){e.textContent='Error: '+m+' (line '+l+')';e.style.color='red';}return false;};
+</script>
+<script>
+(function(){
 
-<script type="module">
-import htm from 'https://esm.sh/htm@3.1.1';
-const html = htm.bind(React.createElement);
-const {useState,useEffect,useRef,useContext,createContext,useMemo,useCallback}=React;
+// Short alias for React.createElement — no template literals, no Babel, no htm
+var e = React.createElement;
+var useState=React.useState, useEffect=React.useEffect, useRef=React.useRef,
+    useContext=React.useContext, createContext=React.createContext,
+    useMemo=React.useMemo, useCallback=React.useCallback;
 
-/* ── Data ── */
-const DOCS=[
+// ── Data ──
+var DOCS=[
   {id:'d1',name:'Introduction to Machine Learning',type:'pdf',size:'4.2 MB',date:'2024-12-01',cat:'Computer Science'},
   {id:'d2',name:'Organic Chemistry - Reaction Mechanisms',type:'pdf',size:'3.8 MB',date:'2024-11-28',cat:'Chemistry'},
   {id:'d3',name:'Data Structures - Trees and Graphs',type:'docx',size:'2.1 MB',date:'2024-11-25',cat:'Computer Science'},
@@ -53,791 +55,696 @@ const DOCS=[
   {id:'d5',name:'Calculus II - Integration Techniques',type:'pdf',size:'5.0 MB',date:'2024-11-15',cat:'Mathematics'},
   {id:'d6',name:'Psychology - Cognitive Behavioral Therapy',type:'docx',size:'2.7 MB',date:'2024-11-10',cat:'Psychology'}
 ];
-const CARDS=[
-  {id:'f1',did:'d1',front:'What is the bias-variance tradeoff?',back:'The balance between fitting training data (low bias) and generalizing to unseen data (low variance). More complexity reduces bias but increases variance.',saved:true},
-  {id:'f2',did:'d1',front:'Supervised vs unsupervised learning?',back:'Supervised uses labeled data to predict outcomes. Unsupervised finds patterns in unlabeled data.',saved:true},
-  {id:'f3',did:'d2',front:'SN1 vs SN2 reactions?',back:'SN1: two-step via carbocation, unimolecular, racemization. SN2: one-step concerted, bimolecular, inversion.',saved:false},
-  {id:'f4',did:'d3',front:'BFS vs DFS?',back:'BFS finds shortest paths in unweighted graphs. DFS is better for topological sorting and cycle detection.',saved:true},
-  {id:'f5',did:'d5',front:'When use trig substitution?',back:'When integrand contains sqrt(a²-x²), sqrt(a²+x²), or sqrt(x²-a²).',saved:false},
-  {id:'f6',did:'d6',front:'Common cognitive distortions in CBT?',back:'All-or-nothing thinking, overgeneralization, mental filter, disqualifying positives, jumping to conclusions, magnification, emotional reasoning, should statements, labeling, personalization.',saved:true},
-  {id:'f7',did:'d1',front:'What is overfitting?',back:'Model learns noise in training data, performs well on training but poorly on test data. Prevention: cross-validation, regularization, more data, early stopping, dropout.',saved:false},
-  {id:'f8',did:'d4',front:'Significance of Congress of Vienna?',back:'Reshaped Europe after Napoleon, restored monarchies, established balance of power, suppressed nationalist movements.',saved:true}
+var CARDS=[
+  {id:'f1',did:'d1',front:'What is the bias-variance tradeoff?',back:'Balance between fitting training data (low bias) and generalizing to unseen data (low variance). More complexity reduces bias but increases variance.',saved:true},
+  {id:'f2',did:'d1',front:'Supervised vs unsupervised learning?',back:'Supervised uses labeled data. Unsupervised finds patterns in unlabeled data.',saved:true},
+  {id:'f3',did:'d2',front:'SN1 vs SN2?',back:'SN1: two-step, unimolecular, racemization. SN2: one-step concerted, bimolecular, inversion.',saved:false},
+  {id:'f4',did:'d3',front:'BFS vs DFS?',back:'BFS for shortest paths. DFS for topological sorting and cycle detection.',saved:true},
+  {id:'f5',did:'d5',front:'When use trig substitution?',back:'Integrands with sqrt(a²-x²), sqrt(a²+x²), or sqrt(x²-a²).',saved:false},
+  {id:'f6',did:'d6',front:'Common CBT distortions?',back:'All-or-nothing, overgeneralization, mental filter, disqualifying positives, jumping to conclusions, magnification, emotional reasoning, should statements, labeling, personalization.',saved:true}
 ];
-const QUIZZES=[
+var QUIZZES=[
   {id:'q1',did:'d1',title:'Machine Learning Fundamentals',saved:true,score:80,date:'2024-12-02',qs:[
-    {id:'q1a',q:'Which type of learning uses labeled training data?',opts:['Unsupervised','Reinforcement','Supervised','Self-supervised'],ans:2,ua:2},
-    {id:'q1b',q:'What happens when a model overfits?',opts:['Generalizes well','Learns noise','High bias','Underperforms on training'],ans:1,ua:1},
-    {id:'q1c',q:'Which is NOT a regularization technique?',opts:['L1 Regularization','Dropout','Data Augmentation','Gradient Descent'],ans:3,ua:0},
-    {id:'q1d',q:'Bias-variance tradeoff suggests:',opts:['More complexity increases both','Less complexity always better','Reducing bias often increases variance','They are independent'],ans:2,ua:2},
-    {id:'q1e',q:'Which handles non-linear boundaries?',opts:['Linear Regression','Logistic Regression','SVM with RBF kernel','Naive Bayes'],ans:2,ua:2}
+    {id:'q1a',q:'Which uses labeled training data?',opts:['Unsupervised','Reinforcement','Supervised','Self-supervised'],ans:2,ua:2},
+    {id:'q1b',q:'What happens on overfitting?',opts:['Generalizes well','Learns noise','High bias','Underperforms training'],ans:1,ua:1},
+    {id:'q1c',q:'NOT a regularization technique?',opts:['L1','Dropout','Data Augmentation','Gradient Descent'],ans:3,ua:0},
+    {id:'q1d',q:'Bias-variance tradeoff suggests:',opts:['More complexity helps both','Less complexity always better','Reducing bias often increases variance','They are independent'],ans:2,ua:2},
+    {id:'q1e',q:'Handles non-linear boundaries?',opts:['Linear Regression','Logistic Regression','SVM RBF','Naive Bayes'],ans:2,ua:2}
   ]},
-  {id:'q2',did:'d2',title:'Organic Chemistry Reactions',saved:true,score:60,date:'2024-11-29',qs:[
-    {id:'q2a',q:'SN2 reactions result in:',opts:['Racemization','Inversion of configuration','Retention','No change'],ans:1,ua:1},
-    {id:'q2b',q:'What favors SN1 over SN2?',opts:['Strong nucleophile','Primary substrate','Tertiary substrate','Low temperature'],ans:2,ua:2},
-    {id:'q2c',q:'E2 elimination requires:',opts:['Carbocation intermediate','Anti-periplanar geometry','Only weak base','Polar protic solvent'],ans:1,ua:0},
-    {id:'q2d',q:'Curved arrow represents:',opts:['Nuclear decay','Electron pair movement','Photon emission','Vibration'],ans:1,ua:1},
-    {id:'q2e',q:'Best solvent for SN1?',opts:['Acetone','Water','Hexane','Diethyl ether'],ans:1,ua:2}
+  {id:'q2',did:'d2',title:'Organic Chemistry',saved:true,score:60,date:'2024-11-29',qs:[
+    {id:'q2a',q:'SN2 results in:',opts:['Racemization','Inversion','Retention','No change'],ans:1,ua:1},
+    {id:'q2b',q:'Favors SN1?',opts:['Strong nucleophile','Primary','Tertiary','Low temp'],ans:2,ua:2},
+    {id:'q2c',q:'E2 requires:',opts:['Carbocation','Anti-periplanar','Weak base only','Protic solvent'],ans:1,ua:0},
+    {id:'q2d',q:'Curved arrow means:',opts:['Decay','Electron pair movement','Photon','Vibration'],ans:1,ua:1},
+    {id:'q2e',q:'Best SN1 solvent?',opts:['Acetone','Water','Hexane','Ether'],ans:1,ua:2}
   ]}
 ];
-const SDATA={weekly:[120,95,140,80,160,110,135],scores:[75,80,60,90,85,95],subjects:{'CS':35,'Chem':20,'Math':18,'Hist':12,'Psych':15},streak:12,hours:840,cards:156,quizzes:24};
+var SD={weekly:[120,95,140,80,160,110,135],scores:[75,80,60,90,85,95],subj:{CS:35,Chem:20,Math:18,Hist:12,Psych:15},streak:12,hours:840,cards:156,quizN:24};
 
-/* ── Context ── */
-const Ctx=createContext();
+var Ctx=createContext();
 
-/* ── Toast ── */
-function Toast({message,type,onClose}){
-  useEffect(()=>{const t=setTimeout(onClose,3000);return()=>clearTimeout(t)},[onClose]);
-  const bg=type==='success'?'bg-emerald-500':type==='error'?'bg-red-500':'bg-teal-600';
-  const ic=type==='success'?'fa-check-circle':type==='error'?'fa-exclamation-circle':'fa-info-circle';
-  return html`<div className="afr fixed top-6 right-6 z-[100] ${bg} text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium">
-    <i className="fas ${ic}"></i><span>${message}</span>
-    <button onClick=${onClose} className="ml-2 opacity-70 hover:opacity-100"><i className="fas fa-times"></i></button>
-  </div>`;
+// ── Helpers ──
+function tI(t){return t==='pdf'?'fa-file-pdf':t==='docx'?'fa-file-word':'fa-file-alt';}
+function tC(t){return t==='pdf'?'bg-red-100 dark:bg-red-900/20 text-red-500':t==='docx'?'bg-blue-100 dark:bg-blue-900/20 text-blue-500':'bg-gray-100 dark:bg-gray-800 text-gray-500';}
+
+function Toast(props){
+  useEffect(function(){var t=setTimeout(props.onClose,3000);return function(){clearTimeout(t);}},[props.onClose]);
+  var bg=props.type==='success'?'bg-emerald-500':props.type==='error'?'bg-red-500':'bg-teal-600';
+  var ic=props.type==='success'?'fa-check-circle':props.type==='error'?'fa-exclamation-circle':'fa-info-circle';
+  return e('div',{className:"af fixed top-6 right-6 z-[100] "+bg+" text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium"},
+    e('i',{className:"fas "+ic}),
+    e('span',null,props.message),
+    e('button',{onClick:props.onClose,className:"ml-2 opacity-70 hover:opacity-100"},e('i',{className:"fas fa-times"}))
+  );
 }
 
-/* ── Spinner ── */
-function Spin({size}){
-  const s=size==='sm'?'w-5 h-5':'w-8 h-8';
-  return html`<div className="${s} rounded-full" style=${{borderWidth:3,borderStyle:'solid',borderColor:'#99f6e4',borderTopColor:'#0d9488',animation:'spin .8s linear infinite'}}/>`;
+function Spin(props){
+  var s=props.size==='sm'?'w-5 h-5':'w-8 h-8';
+  return e('div',{className:s+" rounded-full",style:{borderWidth:3,borderStyle:'solid',borderColor:'#99f6e4',borderTopColor:'#0d9488',animation:'spin .8s linear infinite'}});
 }
 
-/* ── Type helpers ── */
-const typeIcon=t=>t==='pdf'?'fa-file-pdf':t==='docx'?'fa-file-word':'fa-file-alt';
-const typeCls=t=>t==='pdf'?'bg-red-100 dark:bg-red-900/20 text-red-500':t==='docx'?'bg-blue-100 dark:bg-blue-900/20 text-blue-500':'bg-gray-100 dark:bg-gray-800 text-gray-500';
-
-/* ── Auth ── */
+// ── Auth ──
 function AuthPage(){
-  const{setUser}=useContext(Ctx);
-  const[mode,setMode]=useState('login');
-  const[form,setForm]=useState({name:'',email:'',pw:'',pw2:''});
-  const[loading,setLoading]=useState(false);
-  const[err,setErr]=useState('');
+  var ctx=useContext(Ctx);
+  var m=useState('login'),mode=m[0],setMode=m[1];
+  var f=useState({name:'',email:'',pw:'',pw2:''}),form=f[0],setForm=f[1];
+  var l=useState(false),loading=l[0],setLoading=l[1];
+  var er=useState(''),err=er[0],setErr=er[1];
 
-  function submit(e){
-    e.preventDefault();setErr('');
+  function uf(k,v){var n=Object.assign({},form);n[k]=v;setForm(n);}
+  function go(m2){setMode(m2);setErr('');}
+
+  function submit(ev){
+    ev.preventDefault();setErr('');
     if(mode==='signup'&&form.pw!==form.pw2){setErr('Passwords do not match');return;}
     if(!form.email||!form.pw){setErr('Please fill in all fields');return;}
     setLoading(true);
-    setTimeout(()=>{setUser({name:form.name||form.email.split('@')[0],email:form.email,joined:'2024-09-01'});setLoading(false);},1200);
+    setTimeout(function(){ctx.setUser({name:form.name||form.email.split('@')[0],email:form.email});setLoading(false);},1200);
   }
-  function uf(k,v){setForm(Object.assign({},form,{[k]:v}));}
-  function go(m){setMode(m);setErr('');}
 
-  return html`<div className="min-h-screen flex">
-    <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 via-primary-700 to-teal-800 relative overflow-hidden items-center justify-center p-12">
-      <div className="absolute top-20 -left-20 w-72 h-72 bg-primary-400/20 rounded-full blur-3xl ab"></div>
-      <div className="absolute bottom-20 -right-10 w-96 h-96 bg-accent-500/10 rounded-full blur-3xl ab" style=${{animationDelay:'4s'}}></div>
-      <div className="relative z-10 max-w-md">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center"><i className="fas fa-brain text-white text-xl"></i></div>
-          <span className="text-2xl font-bold text-white">StudyMind</span>
-        </div>
-        <h1 className="text-4xl font-extrabold text-white leading-tight mb-4">Your AI-Powered Study Companion</h1>
-        <p className="text-primary-100 text-lg leading-relaxed mb-8">Upload study materials and let AI create summaries, flashcards, and quizzes.</p>
-        <div className="space-y-4">
-          ${[{i:'fa-compress-alt',t:'Instant note summarization'},{i:'fa-clone',t:'Auto-generated flashcards'},{i:'fa-question-circle',t:'AI-powered quizzes'},{i:'fa-comments',t:'Chat with your documents'}].map((f,j)=>html`
-            <div key=${j} className="flex items-center gap-3 text-primary-100 af" style=${{animationDelay:j*150+'ms'}}>
-              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center"><i className="fas ${f.i} text-sm text-accent-400"></i></div>
-              <span className="text-sm font-medium">${f.t}</span>
-            </div>
-          `)}
-        </div>
-      </div>
-    </div>
-    <div className="flex-1 flex items-center justify-center p-6 bg-surface-50 dark:bg-surface-900">
-      <div className="w-full max-w-md af">
-        <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg shadow-primary-500/25"><i className="fas fa-brain text-white"></i></div>
-          <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">StudyMind</span>
-        </div>
-        <h2 className="text-2xl font-bold mb-1">${mode==='login'?'Welcome back':mode==='signup'?'Create your account':'Reset password'}</h2>
-        <p className="text-gray-500 dark:text-gray-400 mb-8 text-sm">
-          ${mode==='login'?"Don't have an account?":mode==='signup'?'Already have an account?':'Remember your password?'}
-          <button onClick=${()=>go(mode==='login'?'signup':'login')} className="text-primary-600 dark:text-primary-400 font-semibold ml-1 hover:underline">${mode==='login'?'Sign up':'Log in'}</button>
-        </p>
-        ${err&&html`<div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-sm"><i className="fas fa-exclamation-circle mr-2"></i>${err}</div>`}
-        <form onSubmit=${submit} className="space-y-4">
-          ${mode==='signup'&&html`<div>
-            <label className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">Full Name</label>
-            <div className="relative"><i className="fas fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-            <input type="text" value=${form.name} onChange=${e=>uf('name',e.target.value)} className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm" placeholder="John Doe" required/></div>
-          </div>`}
-          <div>
-            <label className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">Email</label>
-            <div className="relative"><i className="fas fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-            <input type="email" value=${form.email} onChange=${e=>uf('email',e.target.value)} className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm" placeholder="you@university.edu" required/></div>
-          </div>
-          ${mode!=='forgot'&&html`<div>
-            <label className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">Password</label>
-            <div className="relative"><i className="fas fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-            <input type="password" value=${form.pw} onChange=${e=>uf('pw',e.target.value)} className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm" placeholder="Min. 8 characters" required/></div>
-          </div>`}
-          ${mode==='signup'&&html`<div>
-            <label className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">Confirm Password</label>
-            <div className="relative"><i className="fas fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-            <input type="password" value=${form.pw2} onChange=${e=>uf('pw2',e.target.value)} className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm" placeholder="Repeat password" required/></div>
-          </div>`}
-          ${mode==='login'&&html`<div className="flex justify-end"><button type="button" onClick=${()=>go('forgot')} className="text-sm text-primary-600 dark:text-primary-400 font-semibold hover:underline">Forgot password?</button></div>`}
-          <button type="submit" disabled=${loading} className="w-full py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white rounded-xl font-semibold text-sm shadow-lg shadow-primary-500/25 transition disabled:opacity-60 flex items-center justify-center gap-2">
-            ${loading?html`<${Spin} size="sm" />`:mode==='login'?'Log In':mode==='signup'?'Create Account':'Send Reset Link'}
-          </button>
-        </form>
-        ${mode==='login'&&html`<div className="mt-6">
-          <div className="relative flex items-center justify-center my-4"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200 dark:border-gray-700"></div></div><span className="relative bg-surface-50 dark:bg-surface-900 px-3 text-xs text-gray-400">or continue with</span></div>
-          <div className="grid grid-cols-2 gap-3">
-            <button onClick=${()=>{setLoading(true);setTimeout(()=>setUser({name:'Student',email:'student@google.com',joined:'2024-09-01'}),800;}} className="flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/5 transition"><i className="fab fa-google text-red-500"></i>Google</button>
-            <button onClick=${()=>{setLoading(true);setTimeout(()=>setUser({name:'Student',email:'student@uni.edu',joined:'2024-09-01'}),800;}} className="flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/5 transition"><i className="fas fa-university text-primary-600"></i>University</button>
-          </div>
-        </div>`}
-      </div>
-    </div>
-  </div>`;
+  var feats=[{i:'fa-compress-alt',t:'Instant note summarization'},{i:'fa-clone',t:'Auto-generated flashcards'},{i:'fa-question-circle',t:'AI-powered quizzes'},{i:'fa-comments',t:'Chat with your documents'}];
+
+  // Left panel
+  var left=e('div',{className:"hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 via-primary-700 to-teal-800 relative overflow-hidden items-center justify-center p-12"},
+    e('div',{className:"absolute top-20 -left-20 w-72 h-72 bg-primary-400/20 rounded-full blur-3xl ab"}),
+    e('div',{className:"absolute bottom-20 -right-10 w-96 h-96 bg-accent-500/10 rounded-full blur-3xl ab",style:{animationDelay:'4s'}}),
+    e('div',{className:"relative z-10 max-w-md"},
+      e('div',{className:"flex items-center gap-3 mb-8"},
+        e('div',{className:"w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center"},e('i',{className:"fas fa-brain text-white text-xl"})),
+        e('span',{className:"text-2xl font-bold text-white"},"StudyMind")
+      ),
+      e('h1',{className:"text-4xl font-extrabold text-white leading-tight mb-4"},"Your AI-Powered Study Companion"),
+      e('p',{className:"text-primary-100 text-lg leading-relaxed mb-8"},"Upload study materials and let AI create summaries, flashcards, and quizzes."),
+      e('div',{className:"space-y-4"},feats.map(function(f2,j){
+        return e('div',{key:j,className:"flex items-center gap-3 text-primary-100 af",style:{animationDelay:j*150+'ms'}},
+          e('div',{className:"w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center"},e('i',{className:"fas "+f2.i+" text-sm text-accent-400"})),
+          e('span',{className:"text-sm font-medium"},f2.t)
+        );
+      }))
+    )
+  );
+
+  // Right panel
+  var rightInner=e('div',{className:"w-full max-w-md af"},
+    e('div',{className:"lg:hidden flex items-center gap-3 mb-8 justify-center"},
+      e('div',{className:"w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg shadow-primary-500/25"},e('i',{className:"fas fa-brain text-white"})),
+      e('span',{className:"text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent"},"StudyMind")
+    ),
+    e('h2',{className:"text-2xl font-bold mb-1"},mode==='login'?'Welcome back':mode==='signup'?'Create your account':'Reset password'),
+    e('p',{className:"text-gray-500 dark:text-gray-400 mb-8 text-sm"},
+      mode==='login'?"Don't have an account?":mode==='signup'?'Already have an account?':'Remember your password?',
+      e('button',{onClick:function(){go(mode==='login'?'signup':'login');},className:"text-primary-600 dark:text-primary-400 font-semibold ml-1 hover:underline"},mode==='login'?'Sign up':'Log in')
+    ),
+    err?e('div',{className:"mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-sm"},e('i',{className:"fas fa-exclamation-circle mr-2"}),err):null,
+    e('form',{onSubmit:submit,className:"space-y-4"},
+      mode==='signup'?e('div',null,
+        e('label',{className:"block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300"},"Full Name"),
+        e('div',{className:"relative"},
+          e('i',{className:"fas fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"}),
+          e('input',{type:"text",value:form.name,onChange:function(ev){uf('name',ev.target.value);},className:"w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm",placeholder:"John Doe",required:true})
+        )
+      ):null,
+      e('div',null,
+        e('label',{className:"block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300"},"Email"),
+        e('div',{className:"relative"},
+          e('i',{className:"fas fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"}),
+          e('input',{type:"email",value:form.email,onChange:function(ev){uf('email',ev.target.value);},className:"w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm",placeholder:"you@university.edu",required:true})
+        )
+      ),
+      mode!=='forgot'?e('div',null,
+        e('label',{className:"block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300"},"Password"),
+        e('div',{className:"relative"},
+          e('i',{className:"fas fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"}),
+          e('input',{type:"password",value:form.pw,onChange:function(ev){uf('pw',ev.target.value);},className:"w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm",placeholder:"Min. 8 characters",required:true})
+        )
+      ):null,
+      mode==='login'?e('div',{className:"flex justify-end"},e('button',{type:"button",onClick:function(){go('forgot');},className:"text-sm text-primary-600 dark:text-primary-400 font-semibold hover:underline"},"Forgot password?")):null,
+      e('button',{type:"submit",disabled:loading,className:"w-full py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white rounded-xl font-semibold text-sm shadow-lg shadow-primary-500/25 transition disabled:opacity-60 flex items-center justify-center gap-2"},
+        loading?e(Spin,{size:"sm"}):mode==='login'?'Log In':mode==='signup'?'Create Account':'Send Reset Link'
+      )
+    ),
+    mode==='login'?e('div',{className:"mt-6"},
+      e('div',{className:"relative flex items-center justify-center my-4"},
+        e('div',{className:"absolute inset-0 flex items-center"},e('div',{className:"w-full border-t border-gray-200 dark:border-gray-700"})),
+        e('span',{className:"relative bg-surface-50 dark:bg-surface-900 px-3 text-xs text-gray-400"},"or continue with")
+      ),
+      e('div',{className:"grid grid-cols-2 gap-3"},
+        e('button',{onClick:function(){setLoading(true);setTimeout(function(){ctx.setUser({name:'Student',email:'student@google.com'});},800);},className:"flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/5 transition"},e('i',{className:"fab fa-google text-red-500"}),"Google"),
+        e('button',{onClick:function(){setLoading(true);setTimeout(function(){ctx.setUser({name:'Student',email:'student@uni.edu'});},800);},className:"flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/5 transition"},e('i',{className:"fas fa-university text-primary-600"}),"University")
+      )
+    ):null
+  );
+
+  return e('div',{className:"min-h-screen flex"},
+    left,
+    e('div',{className:"flex-1 flex items-center justify-center p-6 bg-surface-50 dark:bg-surface-900"},rightInner)
+  );
 }
 
-/* ── Sidebar ── */
-function Sidebar({cur,setCur,col,setCol}){
-  const{dark,setDark}=useContext(Ctx);
-  const items=[{id:'dashboard',i:'fa-th-large',l:'Dashboard'},{id:'upload',i:'fa-cloud-upload-alt',l:'Upload'},{id:'documents',i:'fa-folder-open',l:'Documents'},{id:'summarize',i:'fa-compress-alt',l:'Summarize'},{id:'flashcards',i:'fa-clone',l:'Flashcards'},{id:'quiz',i:'fa-question-circle',l:'Quiz'},{id:'chat',i:'fa-comments',l:'AI Chat'},{id:'progress',i:'fa-chart-line',l:'Progress'},{id:'profile',i:'fa-user-circle',l:'Profile'}];
-  return html`<React.Fragment>
-    ${!col&&html`<div className="lg:hidden fixed inset-0 bg-black/40 z-40" onClick=${()=>setCol(true)}/>`}
-    <aside className="fixed top-0 left-0 h-full z-50 transition-all duration-300 flex flex-col bg-white dark:bg-surface-800 border-r border-gray-200 dark:border-gray-700/50 ${col?'-translate-x-full lg:translate-x-0 lg:w-20':'translate-x-0 w-64'}">
-      <div className="flex items-center h-16 border-b border-gray-100 dark:border-gray-700/50 shrink-0 ${col?'lg:justify-center':'px-6'}">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-md shadow-primary-500/25"><i className="fas fa-brain text-white text-sm"></i></div>
-        ${!col&&html`<span className="ml-3 text-lg font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">StudyMind</span>`}
-      </div>
-      <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-        ${items.map(it=>{
-          const a=cur===it.id;
-          return html`<button key=${it.id} onClick=${()=>{setCur(it.id);setCol(true);}}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${a?'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 shadow-sm':'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'} ${col?'lg:justify-center lg:px-0':''}">
-            <i className="fas ${it.i} w-5 text-center ${a?'text-primary-600 dark:text-primary-400':'text-gray-400 dark:text-gray-500'}"></i>
-            ${!col&&html`<span>${it.l}</span>`}
-          </button>`;
-        })}
-      </nav>
-      <div className="p-4 border-t border-gray-100 dark:border-gray-700/50 shrink-0 ${col?'lg:flex lg:justify-center':''}">
-        <button onClick=${()=>setDark(!dark)} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition">
-          <i className="fas ${dark?'fa-sun text-amber-400':'fa-moon'} w-5 text-center"></i>
-          ${!col&&html`<span>${dark?'Light Mode':'Dark Mode'}</span>`}
-        </button>
-      </div>
-    </aside>
-  </React.Fragment>`;
+// ── Sidebar ──
+function Sidebar(props){
+  var ctx=useContext(Ctx);
+  var cur=props.cur,setCur=props.setCur,col=props.col,setCol=props.setCol;
+  var items=[{id:'dashboard',i:'fa-th-large',l:'Dashboard'},{id:'upload',i:'fa-cloud-upload-alt',l:'Upload'},{id:'documents',i:'fa-folder-open',l:'Documents'},{id:'summarize',i:'fa-compress-alt',l:'Summarize'},{id:'flashcards',i:'fa-clone',l:'Flashcards'},{id:'quiz',i:'fa-question-circle',l:'Quiz'},{id:'chat',i:'fa-comments',l:'AI Chat'},{id:'progress',i:'fa-chart-line',l:'Progress'},{id:'profile',i:'fa-user-circle',l:'Profile'}];
+
+  return e(React.Fragment,null,
+    !col?e('div',{className:"lg:hidden fixed inset-0 bg-black/40 z-40",onClick:function(){setCol(true);}}):null,
+    e('aside',{className:"fixed top-0 left-0 h-full z-50 transition-all duration-300 flex flex-col bg-white dark:bg-surface-800 border-r border-gray-200 dark:border-gray-700/50 "+(col?"-translate-x-full lg:translate-x-0 lg:w-20":"translate-x-0 w-64")},
+      e('div',{className:"flex items-center h-16 border-b border-gray-100 dark:border-gray-700/50 shrink-0 "+(col?"lg:justify-center":"px-6")},
+        e('div',{className:"w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-md shadow-primary-500/25"},e('i',{className:"fas fa-brain text-white text-sm"})),
+        !col?e('span',{className:"ml-3 text-lg font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent"},"StudyMind"):null
+      ),
+      e('nav',{className:"flex-1 py-4 px-3 space-y-1 overflow-y-auto"},
+        items.map(function(it){
+          var a=cur===it.id;
+          return e('button',{key:it.id,onClick:function(){setCur(it.id);setCol(true);},className:"w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all "+(a?"bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 shadow-sm":"text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5")+(col?" lg:justify-center lg:px-0":"")},
+            e('i',{className:"fas "+it.i+" w-5 text-center "+(a?"text-primary-600 dark:text-primary-400":"text-gray-400 dark:text-gray-500")}),
+            !col?e('span',null,it.l):null
+          );
+        })
+      ),
+      e('div',{className:"p-4 border-t border-gray-100 dark:border-gray-700/50 shrink-0 "+(col?"lg:flex lg:justify-center":"")},
+        e('button',{onClick:function(){ctx.setDark(!ctx.dark);},className:"w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition"},
+          e('i',{className:"fas "+(ctx.dark?"fa-sun text-amber-400":"fa-moon")+" w-5 text-center"}),
+          !col?e('span',null,ctx.dark?'Light Mode':'Dark Mode'):null
+        )
+      )
+    )
+  );
 }
 
-/* ── TopBar ── */
-function TopBar({setCol}){
-  const{dark,setDark,user}=useContext(Ctx);
-  const[s,setS]=useState('');
-  return html`<header className="sticky top-0 z-30 h-16 bg-white/80 dark:bg-surface-800/80 glass border-b border-gray-200/60 dark:border-gray-700/40 flex items-center justify-between px-4 lg:px-6">
-    <div className="flex items-center gap-3">
-      <button onClick=${()=>setCol(c=>!c)} className="w-9 h-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 flex items-center justify-center text-gray-500 transition" aria-label="Menu"><i className="fas fa-bars text-sm"></i></button>
-      <div className="hidden sm:flex items-center bg-gray-100 dark:bg-white/5 rounded-xl px-3 py-2 w-64 lg:w-80">
-        <i className="fas fa-search text-gray-400 text-xs mr-2"></i>
-        <input value=${s} onChange=${e=>setS(e.target.value)} placeholder="Search documents..." className="bg-transparent text-sm w-full outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500"/>
-      </div>
-    </div>
-    <div className="flex items-center gap-2">
-      <button onClick=${()=>setDark(!dark)} className="w-9 h-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 flex items-center justify-center text-gray-500 transition" aria-label="Toggle theme"><i className="fas ${dark?'fa-sun text-amber-400':'fa-moon'}"></i></button>
-      <button className="w-9 h-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 flex items-center justify-center text-gray-500 transition relative" aria-label="Notifications"><i className="fas fa-bell text-sm"></i><span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span></button>
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold ml-1 shadow-md shadow-primary-500/20">${user?user.name.charAt(0):'S'}</div>
-    </div>
-  </header>`;
+// ── TopBar ──
+function TopBar(props){
+  var ctx=useContext(Ctx);
+  var s=useState(''),sv=s[0],setS=s[1];
+  return e('header',{className:"sticky top-0 z-30 h-16 bg-white/80 dark:bg-surface-800/80 glass border-b border-gray-200/60 dark:border-gray-700/40 flex items-center justify-between px-4 lg:px-6"},
+    e('div',{className:"flex items-center gap-3"},
+      e('button',{onClick:function(){props.setCol(function(c){return !c;});},className:"w-9 h-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 flex items-center justify-center text-gray-500 transition","aria-label":"Menu"},e('i',{className:"fas fa-bars text-sm"})),
+      e('div',{className:"hidden sm:flex items-center bg-gray-100 dark:bg-white/5 rounded-xl px-3 py-2 w-64 lg:w-80"},
+        e('i',{className:"fas fa-search text-gray-400 text-xs mr-2"}),
+        e('input',{value:sv,onChange:function(ev){setS(ev.target.value);},placeholder:"Search...",className:"bg-transparent text-sm w-full outline-none placeholder:text-gray-400"})
+      )
+    ),
+    e('div',{className:"flex items-center gap-2"},
+      e('button',{onClick:function(){ctx.setDark(!ctx.dark);},className:"w-9 h-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 flex items-center justify-center text-gray-500 transition","aria-label":"Theme"},e('i',{className:"fas "+(ctx.dark?"fa-sun text-amber-400":"fa-moon")}),null),
+      e('button',{className:"w-9 h-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 flex items-center justify-center text-gray-500 transition relative"},e('i',{className:"fas fa-bell text-sm"}),e('span',{className:"absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"})),
+      e('div',{className:"w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold ml-1 shadow-md shadow-primary-500/20"},ctx.user?ctx.user.name.charAt(0):'S')
+    )
+  );
 }
 
-/* ── Dashboard ── */
-function Dashboard({setCur}){
-  const{dark}=useContext(Ctx);
-  const r1=useRef(null),r2=useRef(null),r3=useRef(null);
-  const c1=useRef(null),c2=useRef(null),c3=useRef(null);
+// ── Dashboard ──
+function Dashboard(props){
+  var ctx=useContext(Ctx);
+  var r1=useRef(null),r2=useRef(null),r3=useRef(null);
+  var c1=useRef(null),c2=useRef(null),c3=useRef(null);
 
-  useEffect(()=>{
-    if(!r1.current)return;
-    if(c1.current)c1.current.destroy();
-    const ctx=r1.current.getContext('2d');
-    const g=ctx.createLinearGradient(0,0,0,250);
-    g.addColorStop(0,dark?'rgba(20,184,166,0.3)':'rgba(13,148,136,0.15)');
-    g.addColorStop(1,dark?'rgba(20,184,166,0)':'rgba(13,148,136,0)');
-    c1.current=new Chart(ctx,{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{data:SDATA.weekly,borderColor:'#0d9488',backgroundColor:g,fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#0d9488',pointBorderColor:dark?'#141e30':'#fff',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:dark?'#8896ab':'#94a3b8',font:{size:11}}},y:{grid:{color:dark?'rgba(255,255,255,.05)':'rgba(0,0,0,.05)'},ticks:{color:dark?'#8896ab':'#94a3b8',font:{size:11},callback:v=>v+'m'}}}}});
-    return()=>{if(c1.current)c1.current.destroy();};
-  },[dark]);
+  useEffect(function(){
+    if(!r1.current)return;if(c1.current)c1.current.destroy();
+    var x=r1.current.getContext('2d');
+    var g=x.createLinearGradient(0,0,0,250);
+    g.addColorStop(0,ctx.dark?'rgba(20,184,166,0.3)':'rgba(13,148,136,0.15)');
+    g.addColorStop(1,ctx.dark?'rgba(20,184,166,0)':'rgba(13,148,136,0)');
+    c1.current=new Chart(x,{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{data:SD.weekly,borderColor:'#0d9488',backgroundColor:g,fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#0d9488',pointBorderColor:ctx.dark?'#141e30':'#fff',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:ctx.dark?'#8896ab':'#94a3b8',font:{size:11}}},y:{grid:{color:ctx.dark?'rgba(255,255,255,.05)':'rgba(0,0,0,.05)'},ticks:{color:ctx.dark?'#8896ab':'#94a3b8',font:{size:11},callback:function(v){return v+'m';}}}}}});
+    return function(){if(c1.current)c1.current.destroy();};
+  },[ctx.dark]);
 
-  useEffect(()=>{
-    if(!r2.current)return;
-    if(c2.current)c2.current.destroy();
-    c2.current=new Chart(r2.current.getContext('2d'),{type:'doughnut',data:{labels:Object.keys(SDATA.subjects),datasets:[{data:Object.values(SDATA.subjects),backgroundColor:['#0d9488','#f59e0b','#6366f1','#ec4899','#8b5cf6'],borderWidth:0,spacing:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{position:'right',labels:{color:dark?'#cbd5e1':'#475569',font:{size:11},padding:12,usePointStyle:true,pointStyleWidth:8}}}}});
-    return()=>{if(c2.current)c2.current.destroy();};
-  },[dark]);
+  useEffect(function(){
+    if(!r2.current)return;if(c2.current)c2.current.destroy();
+    c2.current=new Chart(r2.current.getContext('2d'),{type:'doughnut',data:{labels:Object.keys(SD.subj),datasets:[{data:Object.values(SD.subj),backgroundColor:['#0d9488','#f59e0b','#6366f1','#ec4899','#8b5cf6'],borderWidth:0,spacing:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{position:'right',labels:{color:ctx.dark?'#cbd5e1':'#475569',font:{size:11},padding:12,usePointStyle:true,pointStyleWidth:8}}}}});
+    return function(){if(c2.current)c2.current.destroy();};
+  },[ctx.dark]);
 
-  useEffect(()=>{
-    if(!r3.current)return;
-    if(c3.current)c3.current.destroy();
-    c3.current=new Chart(r3.current.getContext('2d'),{type:'bar',data:{labels:['Q1','Q2','Q3','Q4','Q5','Q6'],datasets:[{data:SDATA.scores,backgroundColor:SDATA.scores.map(s=>s>=80?'rgba(13,148,136,0.7)':'rgba(245,158,11,0.7)'),borderRadius:8,barThickness:28}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:dark?'#8896ab':'#94a3b8',font:{size:11}}},y:{grid:{color:dark?'rgba(255,255,255,.05)':'rgba(0,0,0,.05)'},min:0,max:100,ticks:{color:dark?'#8896ab':'#94a3b8',font:{size:11},callback:v=>v+'%'}}}}});
-    return()=>{if(c3.current)c3.current.destroy();};
-  },[dark]);
+  useEffect(function(){
+    if(!r3.current)return;if(c3.current)c3.current.destroy();
+    c3.current=new Chart(r3.current.getContext('2d'),{type:'bar',data:{labels:['Q1','Q2','Q3','Q4','Q5','Q6'],datasets:[{data:SD.scores,backgroundColor:SD.scores.map(function(s){return s>=80?'rgba(13,148,136,0.7)':'rgba(245,158,11,0.7)';}),borderRadius:8,barThickness:28}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:ctx.dark?'#8896ab':'#94a3b8',font:{size:11}}},y:{grid:{color:ctx.dark?'rgba(255,255,255,.05)':'rgba(0,0,0,.05)'},min:0,max:100,ticks:{color:ctx.dark?'#8896ab':'#94a3b8',font:{size:11},callback:function(v){return v+'%';}}}}}});
+    return function(){if(c3.current)c3.current.destroy();};
+  },[ctx.dark]);
 
-  const stats=[{i:'fa-fire',l:'Day Streak',v:SDATA.streak,c:'from-orange-400 to-red-500',s:'shadow-orange-500/20'},{i:'fa-clock',l:'Total Hours',v:SDATA.hours,c:'from-primary-400 to-primary-600',s:'shadow-primary-500/20'},{i:'fa-clone',l:'Flashcards',v:SDATA.cards,c:'from-violet-400 to-violet-600',s:'shadow-violet-500/20'},{i:'fa-check-double',l:'Quizzes',v:SDATA.quizzes,c:'from-amber-400 to-amber-600',s:'shadow-amber-500/20'}];
+  var stats=[{i:'fa-fire',l:'Day Streak',v:SD.streak,c:'from-orange-400 to-red-500',s:'shadow-orange-500/20'},{i:'fa-clock',l:'Total Hours',v:SD.hours,c:'from-primary-400 to-primary-600',s:'shadow-primary-500/20'},{i:'fa-clone',l:'Flashcards',v:SD.cards,c:'from-violet-400 to-violet-600',s:'shadow-violet-500/20'},{i:'fa-check-double',l:'Quizzes',v:SD.quizN,c:'from-amber-400 to-amber-600',s:'shadow-amber-500/20'}];
 
-  return html`<div className="af space-y-6">
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <div><h1 className="text-2xl font-bold">Dashboard</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Welcome back! Here's your study overview.</p></div>
-      <button onClick=${()=>setCur('upload')} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition"><i className="fas fa-plus text-xs"></i>Upload Material</button>
-    </div>
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      ${stats.map((s,i)=>html`<div key=${i} className="bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm hover:shadow-md transition af" style=${{animationDelay:i*80+'ms'}}>
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br ${s.c} ${s.s} shadow-lg flex items-center justify-center mb-3"><i className="fas ${s.i} text-white text-sm"></i></div>
-        <div className="text-2xl font-bold">${s.v}</div>
-        <div className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">${s.l}</div>
-      </div>`)}
-    </div>
-    <div className="grid lg:grid-cols-3 gap-4">
-      <div className="lg:col-span-2 bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm"><h3 className="font-semibold mb-4 text-sm">Weekly Study Time</h3><div style=${{height:220}}><canvas ref=${r1}/></div></div>
-      <div className="bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm"><h3 className="font-semibold mb-4 text-sm">Subject Distribution</h3><div style=${{height:220}}><canvas ref=${r2}/></div></div>
-    </div>
-    <div className="grid lg:grid-cols-2 gap-4">
-      <div className="bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm"><h3 className="font-semibold mb-4 text-sm">Quiz Scores</h3><div style=${{height:200}}><canvas ref=${r3}/></div></div>
-      <div className="bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm">
-        <div className="flex items-center justify-between mb-4"><h3 className="font-semibold text-sm">Recent Documents</h3><button onClick=${()=>setCur('documents')} className="text-xs text-primary-600 dark:text-primary-400 font-semibold hover:underline">View All</button></div>
-        <div className="space-y-3">
-          ${DOCS.slice(0,4).map(d=>html`<div key=${d.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition cursor-pointer">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center ${typeCls(d.type)}"><i className="fas ${typeIcon(d.type)} text-sm"></i></div>
-            <div className="flex-1 min-w-0"><div className="text-sm font-medium truncate">${d.name}</div><div className="text-xs text-gray-400">${d.size} · ${d.date}</div></div>
-          </div>`)}
-        </div>
-      </div>
-    </div>
-  </div>`;
+  return e('div',{className:"af space-y-6"},
+    e('div',{className:"flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"},
+      e('div',null,e('h1',{className:"text-2xl font-bold"},"Dashboard"),e('p',{className:"text-gray-500 dark:text-gray-400 text-sm mt-1"},"Welcome back! Here's your study overview.")),
+      e('button',{onClick:function(){props.setCur('upload');},className:"flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition"},e('i',{className:"fas fa-plus text-xs"}),"Upload Material")
+    ),
+    e('div',{className:"grid grid-cols-2 lg:grid-cols-4 gap-4"},stats.map(function(st,i){
+      return e('div',{key:i,className:"bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm hover:shadow-md transition af",style:{animationDelay:i*80+'ms'}},
+        e('div',{className:"w-10 h-10 rounded-xl bg-gradient-to-br "+st.c+" "+st.s+" shadow-lg flex items-center justify-center mb-3"},e('i',{className:"fas "+st.i+" text-white text-sm"})),
+        e('div',{className:"text-2xl font-bold"},st.v),
+        e('div',{className:"text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5"},st.l)
+      );
+    })),
+    e('div',{className:"grid lg:grid-cols-3 gap-4"},
+      e('div',{className:"lg:col-span-2 bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm"},e('h3',{className:"font-semibold mb-4 text-sm"},"Weekly Study Time"),e('div',{style:{height:220}},e('canvas',{ref:r1}))),
+      e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm"},e('h3',{className:"font-semibold mb-4 text-sm"},"Subject Distribution"),e('div',{style:{height:220}},e('canvas',{ref:r2})))
+    ),
+    e('div',{className:"grid lg:grid-cols-2 gap-4"},
+      e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm"},e('h3',{className:"font-semibold mb-4 text-sm"},"Quiz Scores"),e('div',{style:{height:200}},e('canvas',{ref:r3}))),
+      e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm"},
+        e('div',{className:"flex items-center justify-between mb-4"},e('h3',{className:"font-semibold text-sm"},"Recent Documents"),e('button',{onClick:function(){props.setCur('documents');},className:"text-xs text-primary-600 dark:text-primary-400 font-semibold hover:underline"},"View All")),
+        e('div',{className:"space-y-3"},DOCS.slice(0,4).map(function(d){
+          return e('div',{key:d.id,className:"flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition cursor-pointer"},
+            e('div',{className:"w-9 h-9 rounded-lg flex items-center justify-center "+tC(d.type)},e('i',{className:"fas "+tI(d.type)+" text-sm"})),
+            e('div',{className:"flex-1 min-w-0"},e('div',{className:"text-sm font-medium truncate"},d.name),e('div',{className:"text-xs text-gray-400"},d.size+' · '+d.date))
+          );
+        }))
+      )
+    )
+  );
 }
 
-/* ── Upload ── */
+// ── Upload ──
 function UploadPage(){
-  const ctx=useContext(Ctx);
-  const[drag,setDrag]=useState(false);
-  const[uping,setUping]=useState(false);
-  const[prog,setProg]=useState(0);
+  var ctx=useContext(Ctx);
+  var d=useState(false),drag=d[0],setDrag=d[1];
+  var u=useState(false),uping=u[0],setUping=u[1];
+  var p=useState(0),prog=p[0],setProg=p[1];
 
   function handleF(files){
     if(!files||!files.length)return;
     setUping(true);setProg(0);
-    const iv=setInterval(()=>setProg(p=>{if(p>=100){clearInterval(iv);return 100}return p+Math.random()*15;}),200);
-    setTimeout(()=>{clearInterval(iv);setProg(100);
-      ctx.setDocs(prev=>[{id:'d'+Date.now(),name:files[0].name,type:files[0].name.split('.').pop(),size:(files[0].size/1024/1024).toFixed(1)+' MB',date:new Date().toISOString().split('T')[0],cat:'General'},...prev]);
-      setUping(false);ctx.addToast('Document uploaded successfully!','success');
+    var iv=setInterval(function(){setProg(function(v){if(v>=100){clearInterval(iv);return 100}return v+Math.random()*15;});},200);
+    setTimeout(function(){clearInterval(iv);setProg(100);
+      ctx.setDocs(function(prev){return [{id:'d'+Date.now(),name:files[0].name,type:files[0].name.split('.').pop(),size:(files[0].size/1024/1024).toFixed(1)+' MB',date:new Date().toISOString().split('T')[0],cat:'General'}].concat(prev);});
+      setUping(false);ctx.addToast('Document uploaded!','success');
     },2500);
   }
 
-  return html`<div className="af max-w-2xl mx-auto space-y-6">
-    <div><h1 className="text-2xl font-bold">Upload Study Material</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Upload PDF, DOCX, or TXT files for AI processing.</p></div>
-    <div className="relative border-2 border-dashed rounded-2xl p-12 text-center transition-all ${drag?'border-primary-500 bg-primary-50 dark:bg-primary-900/10 scale-[1.02]':'border-gray-300 dark:border-gray-600 hover:border-primary-400'}"
-      onDragOver=${e=>{e.preventDefault();setDrag(true);}} onDragLeave=${()=>setDrag(false)} onDrop=${e=>{e.preventDefault();setDrag(false);handleF(e.dataTransfer.files);}}>
-      <input type="file" accept=".pdf,.docx,.txt" className="absolute inset-0 opacity-0 cursor-pointer" onChange=${e=>handleF(e.target.files)}/>
-      <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 transition ${drag?'bg-primary-100 dark:bg-primary-900/30':'bg-gray-100 dark:bg-white/5'}"><i className="fas fa-cloud-upload-alt text-2xl ${drag?'text-primary-500':'text-gray-400'}"></i></div>
-      <p className="font-semibold mb-1">${drag?'Drop your file here':'Drag and drop your files'}</p>
-      <p className="text-sm text-gray-400">or click to browse. Supports PDF, DOCX, TXT (max 25 MB)</p>
-    </div>
-    ${uping&&html`<div className="bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm">
-      <div className="flex items-center justify-between mb-2"><span className="text-sm font-medium">Uploading...</span><span className="text-sm text-primary-600 dark:text-primary-400 font-semibold">${Math.min(Math.round(prog),100)}%</span></div>
-      <div className="w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-primary-500 to-primary-400 rounded-full transition-all duration-300" style=${{width:Math.min(prog,100)+'%'}}/></div>
-    </div>`}
-    <div className="bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm">
-      <h3 className="font-semibold text-sm mb-3">Supported File Types</h3>
-      <div className="grid grid-cols-3 gap-3">
-        ${[{ext:'PDF',i:'fa-file-pdf',c:'text-red-500 bg-red-50 dark:bg-red-900/20'},{ext:'DOCX',i:'fa-file-word',c:'text-blue-500 bg-blue-50 dark:bg-blue-900/20'},{ext:'TXT',i:'fa-file-alt',c:'text-gray-500 bg-gray-50 dark:bg-gray-800'}].map(f=>html`<div key=${f.ext} className="flex flex-col items-center gap-2 p-4 rounded-xl ${f.c}"><i className="fas ${f.i} text-xl"></i><span className="text-xs font-bold">${f.ext}</span></div>`)}
-      </div>
-    </div>
-  </div>`;
+  return e('div',{className:"af max-w-2xl mx-auto space-y-6"},
+    e('div',null,e('h1',{className:"text-2xl font-bold"},"Upload Study Material"),e('p',{className:"text-gray-500 dark:text-gray-400 text-sm mt-1"},"Upload PDF, DOCX, or TXT files.")),
+    e('div',{className:"relative border-2 border-dashed rounded-2xl p-12 text-center transition-all "+(drag?"border-primary-500 bg-primary-50 dark:bg-primary-900/10":"border-gray-300 dark:border-gray-600 hover:border-primary-400"),onDragOver:function(ev){ev.preventDefault();setDrag(true);},onDragLeave:function(){setDrag(false);},onDrop:function(ev){ev.preventDefault();setDrag(false);handleF(ev.dataTransfer.files);}},
+      e('input',{type:"file",accept:".pdf,.docx,.txt",className:"absolute inset-0 opacity-0 cursor-pointer",onChange:function(ev){handleF(ev.target.files);}}),
+      e('div',{className:"w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 transition "+(drag?"bg-primary-100 dark:bg-primary-900/30":"bg-gray-100 dark:bg-white/5")},e('i',{className:"fas fa-cloud-upload-alt text-2xl "+(drag?"text-primary-500":"text-gray-400")})),
+      e('p',{className:"font-semibold mb-1"},drag?'Drop your file here':'Drag and drop your files'),
+      e('p',{className:"text-sm text-gray-400"},"or click to browse. Supports PDF, DOCX, TXT")
+    ),
+    uping?e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm"},
+      e('div',{className:"flex items-center justify-between mb-2"},e('span',{className:"text-sm font-medium"},"Uploading..."),e('span',{className:"text-sm text-primary-600 dark:text-primary-400 font-semibold"},Math.min(Math.round(prog),100)+"%")),
+      e('div',{className:"w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden"},e('div',{className:"h-full bg-gradient-to-r from-primary-500 to-primary-400 rounded-full transition-all duration-300",style:{width:Math.min(prog,100)+'%'}}))
+    ):null,
+    e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm"},
+      e('h3',{className:"font-semibold text-sm mb-3"},"Supported File Types"),
+      e('div',{className:"grid grid-cols-3 gap-3"},
+        [{ext:'PDF',i:'fa-file-pdf',c:'text-red-500 bg-red-50 dark:bg-red-900/20'},{ext:'DOCX',i:'fa-file-word',c:'text-blue-500 bg-blue-50 dark:bg-blue-900/20'},{ext:'TXT',i:'fa-file-alt',c:'text-gray-500 bg-gray-50 dark:bg-gray-800'}].map(function(f){return e('div',{key:f.ext,className:"flex flex-col items-center gap-2 p-4 rounded-xl "+f.c},e('i',{className:"fas "+f.i+" text-xl"}),e('span',{className:"text-xs font-bold"},f.ext));})
+      )
+    )
+  );
 }
 
-/* ── Documents ── */
-function DocsPage({setCur}){
-  const ctx=useContext(Ctx);
-  const[search,setSearch]=useState('');
-  const[filter,setFilter]=useState('all');
-  const filtered=ctx.docs.filter(d=>{
-    const ms=d.name.toLowerCase().indexOf(search.toLowerCase())>=0||d.cat.toLowerCase().indexOf(search.toLowerCase())>=0;
-    const mf=filter==='all'||d.type===filter;
-    return ms&&mf;
-  });
-  return html`<div className="af space-y-6">
-    <div><h1 className="text-2xl font-bold">Study Materials</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">All your uploaded documents.</p></div>
-    <div className="flex flex-col sm:flex-row gap-3">
-      <div className="flex-1 flex items-center bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 rounded-xl px-3 py-2">
-        <i className="fas fa-search text-gray-400 text-sm mr-2"></i>
-        <input value=${search} onChange=${e=>setSearch(e.target.value)} placeholder="Search documents..." className="bg-transparent text-sm w-full outline-none placeholder:text-gray-400"/>
-      </div>
-      <div className="flex gap-2">
-        ${['all','pdf','docx','txt'].map(f=>html`<button key=${f} onClick=${()=>setFilter(f)} className="px-3 py-2 rounded-xl text-xs font-semibold transition ${filter===f?'bg-primary-600 text-white shadow-md shadow-primary-500/25':'bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 text-gray-600 dark:text-gray-400 hover:border-primary-300'}">${f.toUpperCase()}</button>`)}
-      </div>
-    </div>
-    ${filtered.length===0?html`<div className="text-center py-16"><i className="fas fa-folder-open text-4xl text-gray-300 dark:text-gray-600 mb-3 block"></i><p className="text-gray-400 text-sm">No documents found</p></div>`:
-    html`<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      ${filtered.map((d,i)=>html`<div key=${d.id} className="bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm hover:shadow-md transition cursor-pointer group af" style=${{animationDelay:i*60+'ms'}}>
-        <div className="flex items-start justify-between mb-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center ${typeCls(d.type)}"><i className="fas ${typeIcon(d.type)} text-sm"></i></div>
-          <span className="text-xs font-semibold text-gray-400 bg-gray-100 dark:bg-white/5 px-2 py-1 rounded-lg">${d.type.toUpperCase()}</span>
-        </div>
-        <h3 className="font-semibold text-sm mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition lc2">${d.name}</h3>
-        <p className="text-xs text-gray-400 mb-3">${d.cat} · ${d.size}</p>
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-400">${d.date}</span>
-          <div className="flex gap-1.5">
-            <button onClick=${()=>setCur('summarize')} className="w-7 h-7 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 flex items-center justify-center hover:bg-primary-100 dark:hover:bg-primary-900/40 transition" title="Summarize"><i className="fas fa-compress-alt text-xs"></i></button>
-            <button onClick=${()=>setCur('flashcards')} className="w-7 h-7 rounded-lg bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 flex items-center justify-center hover:bg-violet-100 dark:hover:bg-violet-900/40 transition" title="Flashcards"><i className="fas fa-clone text-xs"></i></button>
-            <button onClick=${()=>setCur('quiz')} className="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 flex items-center justify-center hover:bg-amber-100 dark:hover:bg-amber-900/40 transition" title="Quiz"><i className="fas fa-question text-xs"></i></button>
-          </div>
-        </div>
-      </div>`)}
-    </div>`}
-  </div>`;
+// ── Documents ──
+function DocsPage(props){
+  var ctx=useContext(Ctx);
+  var s=useState(''),search=s[0],setSearch=s[1];
+  var f=useState('all'),filter=f[0],setFilter=f[1];
+  var filtered=ctx.docs.filter(function(d2){var ms=d2.name.toLowerCase().indexOf(search.toLowerCase())>=0;var mf=filter==='all'||d2.type===filter;return ms&&mf;});
+
+  return e('div',{className:"af space-y-6"},
+    e('div',null,e('h1',{className:"text-2xl font-bold"},"Study Materials"),e('p',{className:"text-gray-500 dark:text-gray-400 text-sm mt-1"},"All your uploaded documents.")),
+    e('div',{className:"flex flex-col sm:flex-row gap-3"},
+      e('div',{className:"flex-1 flex items-center bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 rounded-xl px-3 py-2"},e('i',{className:"fas fa-search text-gray-400 text-sm mr-2"}),e('input',{value:search,onChange:function(ev){setSearch(ev.target.value);},placeholder:"Search...",className:"bg-transparent text-sm w-full outline-none placeholder:text-gray-400"})),
+      e('div',{className:"flex gap-2"},['all','pdf','docx','txt'].map(function(f2){return e('button',{key:f2,onClick:function(){setFilter(f2);},className:"px-3 py-2 rounded-xl text-xs font-semibold transition "+(filter===f2?"bg-primary-600 text-white shadow-md":"bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 text-gray-600 dark:text-gray-400")},f2.toUpperCase());}))
+    ),
+    filtered.length===0?e('div',{className:"text-center py-16"},e('i',{className:"fas fa-folder-open text-4xl text-gray-300 dark:text-gray-600 mb-3 block"}),e('p',{className:"text-gray-400 text-sm"},"No documents found")):
+    e('div',{className:"grid sm:grid-cols-2 lg:grid-cols-3 gap-4"},filtered.map(function(d2,i){return e('div',{key:d2.id,className:"bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm hover:shadow-md transition cursor-pointer group af",style:{animationDelay:i*60+'ms'}},
+      e('div',{className:"flex items-start justify-between mb-3"},e('div',{className:"w-10 h-10 rounded-xl flex items-center justify-center "+tC(d2.type)},e('i',{className:"fas "+tI(d2.type)+" text-sm"})),e('span',{className:"text-xs font-semibold text-gray-400 bg-gray-100 dark:bg-white/5 px-2 py-1 rounded-lg"},d2.type.toUpperCase())),
+      e('h3',{className:"font-semibold text-sm mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition lc2"},d2.name),
+      e('p',{className:"text-xs text-gray-400 mb-3"},d2.cat+' · '+d2.size),
+      e('div',{className:"flex items-center justify-between"},e('span',{className:"text-xs text-gray-400"},d2.date),
+        e('div',{className:"flex gap-1.5"},
+          e('button',{onClick:function(){props.setCur('summarize');},className:"w-7 h-7 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 flex items-center justify-center hover:bg-primary-100 transition",title:"Summarize"},e('i',{className:"fas fa-compress-alt text-xs"})),
+          e('button',{onClick:function(){props.setCur('flashcards');},className:"w-7 h-7 rounded-lg bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 flex items-center justify-center hover:bg-violet-100 transition",title:"Flashcards"},e('i',{className:"fas fa-clone text-xs"})),
+          e('button',{onClick:function(){props.setCur('quiz');},className:"w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 flex items-center justify-center hover:bg-amber-100 transition",title:"Quiz"},e('i',{className:"fas fa-question text-xs"}))
+        )
+      )
+    );}))
+  );
 }
 
-/* ── Summarize ── */
+// ── Summarize ──
 function SummarizePage(){
-  const ctx=useContext(Ctx);
-  const[sel,setSel]=useState('');
-  const[sum,setSum]=useState('');
-  const[loading,setLoading]=useState(false);
+  var ctx=useContext(Ctx);
+  var s=useState(''),sel=s[0],setSel=s[1];
+  var sm=useState(''),sum=sm[0],setSum=sm[1];
+  var ld=useState(false),loading=ld[0],setLoading=ld[1];
 
   function gen(){
-    if(!sel){ctx.addToast('Please select a document first','error');return;}
+    if(!sel){ctx.addToast('Select a document first','error');return;}
     setLoading(true);setSum('');
-    const doc=ctx.docs.find(d=>d.id===sel);
-    const full='**Key Points from "'+doc.name+'":**\n\nThis document covers fundamental concepts in '+doc.cat+'. The main topics include:\n\n1. **Core Principles**: Foundational definitions and frameworks essential for advanced study.\n\n2. **Key Mechanisms**: Important processes described in detail, emphasizing their interactions.\n\n3. **Practical Applications**: Theoretical concepts connected to real-world use cases.\n\n4. **Critical Analysis**: Distinctions and comparisons between related concepts.\n\n5. **Study Recommendations**: Focus on understanding relationships rather than memorizing facts.';
-    let idx=0;
-    const iv=setInterval(()=>{setSum(full.slice(0,idx));idx+=3;if(idx>=full.length){setSum(full);clearInterval(iv);setLoading(false);ctx.addToast('Summary generated!','success');}},20);
+    var doc=ctx.docs.find(function(d2){return d2.id===sel;});
+    var full='Key Points from "'+doc.name+'":\n\nThis document covers fundamental concepts in '+doc.cat+'.\n\n1. Core Principles: Foundational definitions essential for advanced study.\n\n2. Key Mechanisms: Important processes described in detail.\n\n3. Practical Applications: Theory connected to real-world use cases.\n\n4. Critical Analysis: Distinctions between related concepts.\n\n5. Study Recommendations: Focus on understanding relationships rather than memorizing facts.';
+    var idx=0;
+    var iv=setInterval(function(){setSum(full.slice(0,idx));idx+=3;if(idx>=full.length){setSum(full);clearInterval(iv);setLoading(false);ctx.addToast('Summary generated!','success');}},20);
   }
 
-  return html`<div className="af max-w-3xl mx-auto space-y-6">
-    <div><h1 className="text-2xl font-bold">AI Summarizer</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Get concise summaries of your study materials.</p></div>
-    <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm space-y-4">
-      <div><label className="block text-sm font-medium mb-1.5">Select Document</label>
-        <select value=${sel} onChange=${e=>setSel(e.target.value)} className="w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm">
-          <option value="">Choose a document...</option>
-          ${ctx.docs.map(d=>html`<option key=${d.id} value=${d.id}>${d.name}</option>`)}
-        </select>
-      </div>
-      <button onClick=${gen} disabled=${loading} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary-500/25 transition disabled:opacity-60">
-        ${loading?html`<${Spin} size="sm" /><span>Generating...</span>`:html`<i className="fas fa-magic text-xs"></i>Generate Summary`}
-      </button>
-    </div>
-    ${sum&&html`<div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm af">
-      <div className="flex items-center justify-between mb-4"><h3 className="font-semibold text-sm">Summary</h3><button onClick=${()=>{navigator.clipboard.writeText(sum);ctx.addToast('Copied!','success');}} className="text-xs text-primary-600 dark:text-primary-400 font-semibold hover:underline"><i className="fas fa-copy mr-1"></i>Copy</button></div>
-      <div className="text-sm leading-relaxed whitespace-pre-wrap">${sum.split('**').map((s,i)=>i%2===1?React.createElement('strong',{key:i},s):s)}</div>
-    </div>`}
-  </div>`;
+  return e('div',{className:"af max-w-3xl mx-auto space-y-6"},
+    e('div',null,e('h1',{className:"text-2xl font-bold"},"AI Summarizer"),e('p',{className:"text-gray-500 dark:text-gray-400 text-sm mt-1"},"Get concise summaries.")),
+    e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm space-y-4"},
+      e('div',null,e('label',{className:"block text-sm font-medium mb-1.5"},"Select Document"),e('select',{value:sel,onChange:function(ev){setSel(ev.target.value);},className:"w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm"},e('option',{value:""},"Choose a document..."),ctx.docs.map(function(d2){return e('option',{key:d2.id,value:d2.id},d2.name);}))),
+      e('button',{onClick:gen,disabled:loading,className:"flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary-500/25 transition disabled:opacity-60"},loading?e(Spin,{size:"sm"}):e('i',{className:"fas fa-magic text-xs"}),loading?"Generating...":"Generate Summary")
+    ),
+    sum?e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm af"},
+      e('div',{className:"flex items-center justify-between mb-4"},e('h3',{className:"font-semibold text-sm"},"Summary"),e('button',{onClick:function(){navigator.clipboard.writeText(sum);ctx.addToast('Copied!','success');},className:"text-xs text-primary-600 dark:text-primary-400 font-semibold hover:underline"},e('i',{className:"fas fa-copy mr-1"}),"Copy")),
+      e('div',{className:"text-sm leading-relaxed whitespace-pre-wrap"},sum)
+    ):null
+  );
 }
 
-/* ── Flashcards ── */
+// ── Flashcards ──
 function FlashcardsPage(){
-  const ctx=useContext(Ctx);
-  const[sel,setSel]=useState('');
-  const[gening,setGening]=useState(false);
-  const[idx,setIdx]=useState(0);
-  const[flip,setFlip]=useState(false);
-  const[savedOnly,setSavedOnly]=useState(false);
-
-  const vis=savedOnly?ctx.cards.filter(f=>f.saved):ctx.cards;
-  const card=vis[idx];
+  var ctx=useContext(Ctx);
+  var s=useState(''),sel=s[0],setSel=s[1];
+  var g=useState(false),gening=g[0],setGening=g[1];
+  var ix=useState(0),idx=ix[0],setIdx=ix[1];
+  var fl=useState(false),flip=fl[0],setFlip=fl[1];
+  var sv=useState(false),savedOnly=sv[0],setSavedOnly=sv[1];
+  var vis=savedOnly?ctx.cards.filter(function(f2){return f2.saved;}):ctx.cards;
+  var card=vis[idx];
 
   function gen(){
-    if(!sel){ctx.addToast('Please select a document','error');return;}
+    if(!sel){ctx.addToast('Select a document','error');return;}
     setGening(true);
-    setTimeout(()=>{
-      const nc=[
-        {id:'f'+Date.now()+'a',did:sel,front:'What is the primary focus of this document?',back:'Establishing core concepts and their practical applications, emphasizing understanding over memorization.',saved:false},
-        {id:'f'+Date.now()+'b',did:sel,front:'How do the key mechanisms interact?',back:'They form an interconnected system where each process influences others, creating feedback loops.',saved:false},
-        {id:'f'+Date.now()+'c',did:sel,front:'Theoretical vs practical applications?',back:'Theoretical frameworks provide general principles. Practical applications account for real-world constraints.',saved:false},
-        {id:'f'+Date.now()+'d',did:sel,front:'Why is comparative analysis important?',back:'It reveals strengths and limitations of different approaches, enabling informed selection.',saved:false}
-      ];
-      ctx.setCards(p=>[...nc,...p]);setIdx(0);setFlip(false);setGening(false);
-      ctx.addToast('4 flashcards generated!','success');
+    setTimeout(function(){
+      var nc=[{id:'f'+Date.now()+'a',did:sel,front:'Primary focus of this document?',back:'Core concepts and practical applications, emphasizing understanding over memorization.',saved:false},{id:'f'+Date.now()+'b',did:sel,front:'How do key mechanisms interact?',back:'Interconnected system with feedback loops.',saved:false},{id:'f'+Date.now()+'c',did:sel,front:'Theoretical vs practical?',back:'Theory provides principles. Practice accounts for real-world constraints.',saved:false},{id:'f'+Date.now()+'d',did:sel,front:'Why comparative analysis?',back:'Reveals strengths and limitations of different approaches.',saved:false}];
+      ctx.setCards(function(p){return nc.concat(p);});setIdx(0);setFlip(false);setGening(false);ctx.addToast('4 flashcards generated!','success');
     },2000);
   }
 
-  function toggleSave(id){
-    ctx.setCards(p=>p.map(f=>f.id===id?Object.assign({},f,{saved:!f.saved}):f));
-    const t=ctx.cards.find(f=>f.id===id);
-    ctx.addToast(t&&t.saved?'Flashcard unsaved':'Flashcard saved!','success');
-  }
+  function toggle(id){ctx.setCards(function(p){return p.map(function(f2){return f2.id===id?Object.assign({},f2,{saved:!f2.saved}):f2;});});ctx.addToast('Flashcard saved!','success');}
 
-  return html`<div className="af max-w-3xl mx-auto space-y-6">
-    <div><h1 className="text-2xl font-bold">Flashcards</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Generate and study AI-powered flashcards.</p></div>
-    <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm space-y-4">
-      <div className="flex flex-col sm:flex-row gap-3">
-        <select value=${sel} onChange=${e=>setSel(e.target.value)} className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm">
-          <option value="">Select document...</option>
-          ${ctx.docs.map(d=>html`<option key=${d.id} value=${d.id}>${d.name}</option>`)}
-        </select>
-        <button onClick=${gen} disabled=${gening} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-600 to-violet-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-violet-500/25 transition disabled:opacity-60">
-          ${gening?html`<${Spin} size="sm" />`:html`<i className="fas fa-magic text-xs"></i>`} Generate
-        </button>
-      </div>
-      <div className="flex gap-2">
-        <button onClick=${()=>setSavedOnly(false)} className="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${!savedOnly?'bg-primary-600 text-white':'bg-gray-100 dark:bg-white/5 text-gray-500'}">All Cards</button>
-        <button onClick=${()=>setSavedOnly(true)} className="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${savedOnly?'bg-primary-600 text-white':'bg-gray-100 dark:bg-white/5 text-gray-500'}">Saved Only</button>
-      </div>
-    </div>
-    ${card?html`<div className="space-y-4">
-      <div className="flip-card w-full cursor-pointer" style=${{height:280}} onClick=${()=>setFlip(!flip)}>
-        <div className="flip-inner w-full h-full ${flip?'flipped':''}">
-          <div className="flip-front bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl p-8 flex flex-col items-center justify-center text-white shadow-xl shadow-primary-500/20">
-            <span className="text-xs font-semibold uppercase tracking-wider opacity-70 mb-4">Question</span>
-            <p className="text-lg font-semibold text-center leading-relaxed">${card.front}</p>
-            <span className="text-xs opacity-50 mt-4">Click to reveal answer</span>
-          </div>
-          <div className="flip-back bg-white dark:bg-surface-800 rounded-2xl p-8 flex flex-col items-center justify-center border border-gray-100 dark:border-gray-700/40 shadow-xl">
-            <span className="text-xs font-semibold uppercase tracking-wider text-primary-600 dark:text-primary-400 mb-4">Answer</span>
-            <p className="text-sm text-center leading-relaxed text-gray-700 dark:text-gray-300">${card.back}</p>
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center justify-between">
-        <button onClick=${()=>{setIdx(Math.max(0,idx-1));setFlip(false);}} disabled=${idx===0} className="w-10 h-10 rounded-xl bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 flex items-center justify-center disabled:opacity-30 hover:shadow-md transition"><i className="fas fa-chevron-left text-sm"></i></button>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500">${idx+1} / ${vis.length}</span>
-          <button onClick=${()=>toggleSave(card.id)} className="w-10 h-10 rounded-xl flex items-center justify-center transition ${card.saved?'bg-amber-100 dark:bg-amber-900/20 text-amber-500':'bg-gray-100 dark:bg-white/5 text-gray-400 hover:text-amber-500'}"><i className="fas fa-bookmark"></i></button>
-        </div>
-        <button onClick=${()=>{setIdx(Math.min(vis.length-1,idx+1));setFlip(false);}} disabled=${idx>=vis.length-1} className="w-10 h-10 rounded-xl bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 flex items-center justify-center disabled:opacity-30 hover:shadow-md transition"><i className="fas fa-chevron-right text-sm"></i></button>
-      </div>
-    </div>`:html`<div className="text-center py-16"><i className="fas fa-clone text-4xl text-gray-300 dark:text-gray-600 mb-3 block"></i><p className="text-gray-400 text-sm">Generate flashcards from a document to get started</p></div>`}
-  </div>`;
+  return e('div',{className:"af max-w-3xl mx-auto space-y-6"},
+    e('div',null,e('h1',{className:"text-2xl font-bold"},"Flashcards"),e('p',{className:"text-gray-500 dark:text-gray-400 text-sm mt-1"},"AI-powered flashcards.")),
+    e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm space-y-4"},
+      e('div',{className:"flex flex-col sm:flex-row gap-3"},
+        e('select',{value:sel,onChange:function(ev){setSel(ev.target.value);},className:"flex-1 px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm"},e('option',{value:""},"Select document..."),ctx.docs.map(function(d2){return e('option',{key:d2.id,value:d2.id},d2.name);})),
+        e('button',{onClick:gen,disabled:gening,className:"flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-600 to-violet-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-violet-500/25 transition disabled:opacity-60"},gening?e(Spin,{size:"sm"}):e('i',{className:"fas fa-magic text-xs"})," Generate")
+      ),
+      e('div',{className:"flex gap-2"},
+        e('button',{onClick:function(){setSavedOnly(false);},className:"px-3 py-1.5 rounded-lg text-xs font-semibold transition "+(!savedOnly?"bg-primary-600 text-white":"bg-gray-100 dark:bg-white/5 text-gray-500")},"All Cards"),
+        e('button',{onClick:function(){setSavedOnly(true);},className:"px-3 py-1.5 rounded-lg text-xs font-semibold transition "+(savedOnly?"bg-primary-600 text-white":"bg-gray-100 dark:bg-white/5 text-gray-500")},"Saved Only")
+      )
+    ),
+    card?e('div',{className:"space-y-4"},
+      e('div',{className:"flip-card w-full cursor-pointer",style:{height:280},onClick:function(){setFlip(!flip);}},
+        e('div',{className:"flip-inner w-full h-full "+(flip?"flipped":"")},
+          e('div',{className:"flip-front bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl p-8 flex flex-col items-center justify-center text-white shadow-xl shadow-primary-500/20"},
+            e('span',{className:"text-xs font-semibold uppercase tracking-wider opacity-70 mb-4"},"Question"),
+            e('p',{className:"text-lg font-semibold text-center leading-relaxed"},card.front),
+            e('span',{className:"text-xs opacity-50 mt-4"},"Click to reveal answer")
+          ),
+          e('div',{className:"flip-back bg-white dark:bg-surface-800 rounded-2xl p-8 flex flex-col items-center justify-center border border-gray-100 dark:border-gray-700/40 shadow-xl"},
+            e('span',{className:"text-xs font-semibold uppercase tracking-wider text-primary-600 dark:text-primary-400 mb-4"},"Answer"),
+            e('p',{className:"text-sm text-center leading-relaxed text-gray-700 dark:text-gray-300"},card.back)
+          )
+        )
+      ),
+      e('div',{className:"flex items-center justify-between"},
+        e('button',{onClick:function(){setIdx(Math.max(0,idx-1));setFlip(false);},disabled:idx===0,className:"w-10 h-10 rounded-xl bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 flex items-center justify-center disabled:opacity-30 hover:shadow-md transition"},e('i',{className:"fas fa-chevron-left text-sm"})),
+        e('div',{className:"flex items-center gap-3"},
+          e('span',{className:"text-sm text-gray-500"},(idx+1)+' / '+vis.length),
+          e('button',{onClick:function(){toggle(card.id);},className:"w-10 h-10 rounded-xl flex items-center justify-center transition "+(card.saved?"bg-amber-100 dark:bg-amber-900/20 text-amber-500":"bg-gray-100 dark:bg-white/5 text-gray-400 hover:text-amber-500")},e('i',{className:"fas fa-bookmark"}))
+        ),
+        e('button',{onClick:function(){setIdx(Math.min(vis.length-1,idx+1));setFlip(false);},disabled:idx>=vis.length-1,className:"w-10 h-10 rounded-xl bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 flex items-center justify-center disabled:opacity-30 hover:shadow-md transition"},e('i',{className:"fas fa-chevron-right text-sm"}))
+      )
+    ):e('div',{className:"text-center py-16"},e('i',{className:"fas fa-clone text-4xl text-gray-300 dark:text-gray-600 mb-3 block"}),e('p',{className:"text-gray-400 text-sm"},"Generate flashcards from a document"))
+  );
 }
 
-/* ── Quiz ── */
+// ── Quiz ──
 function QuizPage(){
-  const ctx=useContext(Ctx);
-  const[sel,setSel]=useState('');
-  const[gening,setGening]=useState(false);
-  const[active,setActive]=useState(null);
-  const[cq,setCq]=useState(0);
-  const[ans,setAns]=useState({});
-  const[results,setResults]=useState(false);
-  const[savedOnly,setSavedOnly]=useState(false);
+  var ctx=useContext(Ctx);
+  var s=useState(''),sel=s[0],setSel=s[1];
+  var gn=useState(false),gening=gn[0],setGening=gn[1];
+  var ac=useState(null),active=ac[0],setActive=ac[1];
+  var cq2=useState(0),cq=cq2[0],setCq=cq2[1];
+  var an=useState({}),ans=an[0],setAns=an[1];
+  var rs=useState(false),results=rs[0],setResults=rs[1];
+  var sv=useState(false),savedOnly=sv[0],setSavedOnly=sv[1];
+  var dq=savedOnly?ctx.quizzes.filter(function(q){return q.saved;}):ctx.quizzes;
 
   function gen(){
-    if(!sel){ctx.addToast('Please select a document','error');return;}
+    if(!sel){ctx.addToast('Select a document','error');return;}
     setGening(true);
-    setTimeout(()=>{
-      const doc=ctx.docs.find(d=>d.id===sel);
-      const nq={id:'q'+Date.now(),did:sel,title:(doc?doc.name:'Doc')+' Quiz',saved:false,qs:[
-        {id:'q'+Date.now()+'a',q:'Which concept is most fundamental?',opts:['Advanced applications only','Core principles and definitions','Historical context exclusively','Mathematical proofs'],ans:1},
-        {id:'q'+Date.now()+'b',q:'What is the primary benefit of understanding these mechanisms?',opts:['Memorization of facts','Ability to predict and explain outcomes','Faster assignment completion','Avoiding further study'],ans:1},
-        {id:'q'+Date.now()+'c',q:'Which best demonstrates mastery?',opts:['Reciting definitions','Applying concepts to novel scenarios','Copying examples','Highlighting passages'],ans:1},
-        {id:'q'+Date.now()+'d',q:'When comparing approaches, consider:',opts:['Only the most popular','Their respective strengths and limitations','The one with fewest steps','The most recent only'],ans:1},
-        {id:'q'+Date.now()+'e',q:'How does theory support practice?',opts:['It does not relate','It provides a framework for informed decisions','It replaces practice','It makes practice unnecessary'],ans:1}
-      ]};
-      ctx.setQuizzes(p=>[nq,...p]);setActive(nq);setCq(0);setAns({});setResults(false);
-      setGening(false);ctx.addToast('Quiz generated!','success');
+    setTimeout(function(){
+      var doc=ctx.docs.find(function(d2){return d2.id===sel;});
+      var nq={id:'q'+Date.now(),did:sel,title:(doc?doc.name:'Doc')+' Quiz',saved:false,qs:[{id:'q'+Date.now()+'a',q:'Which is most fundamental?',opts:['Advanced only','Core principles','Historical context','Proofs'],ans:1},{id:'q'+Date.now()+'b',q:'Primary benefit of understanding mechanisms?',opts:['Memorization','Predict outcomes','Faster assignments','Avoid study'],ans:1},{id:'q'+Date.now()+'c',q:'Best demonstrates mastery?',opts:['Reciting definitions','Applying to novel scenarios','Copying examples','Highlighting'],ans:1},{id:'q'+Date.now()+'d',q:'When comparing, consider:',opts:['Most popular','Strengths and limitations','Fewest steps','Most recent'],ans:1},{id:'q'+Date.now()+'e',q:'Theory supports practice by:',opts:['No relation','Framework for decisions','Replacing practice','Making it unnecessary'],ans:1}]};
+      ctx.setQuizzes(function(p){return [nq].concat(p);});setActive(nq);setCq(0);setAns({});setResults(false);setGening(false);ctx.addToast('Quiz generated!','success');
     },2200);
   }
 
   function submit(){
-    let sc=0;active.qs.forEach(q=>{if(ans[q.id]===q.ans)sc++;});
-    const pct=Math.round(sc/active.qs.length*100);
-    const upd=Object.assign({},active,{score:pct,date:new Date().toISOString().split('T')[0],qs:active.qs.map(q=>Object.assign({},q,{ua:ans[q.id]}))});
-    ctx.setQuizzes(p=>p.map(q=>q.id===upd.id?upd:q));
-    setActive(upd);setResults(true);
-    ctx.addToast('Quiz complete! Score: '+pct+'%','success');
+    var sc=0;active.qs.forEach(function(q){if(ans[q.id]===q.ans)sc++;});
+    var pct=Math.round(sc/active.qs.length*100);
+    var upd=Object.assign({},active,{score:pct,date:new Date().toISOString().split('T')[0],qs:active.qs.map(function(q){return Object.assign({},q,{ua:ans[q.id]});})});
+    ctx.setQuizzes(function(p){return p.map(function(q){return q.id===upd.id?upd:q;});});setActive(upd);setResults(true);ctx.addToast('Score: '+pct+'%','success');
   }
 
-  const dq=savedOnly?ctx.quizzes.filter(q=>q.saved):ctx.quizzes;
-
+  // Taking quiz
   if(active&&!results){
-    const q=active.qs[cq];
-    return html`<div className="af max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center justify-between"><h2 className="text-lg font-bold">${active.title}</h2><span className="text-sm text-gray-500">${cq+1}/${active.qs.length}</span></div>
-      <div className="w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-primary-500 to-primary-400 rounded-full transition-all" style=${{width:(cq+1)/active.qs.length*100+'%'}}/></div>
-      <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm">
-        <p className="font-semibold mb-5">${q.q}</p>
-        <div className="space-y-3">
-          ${q.opts.map((opt,i)=>{
-            const s=ans[q.id]===i;
-            return html`<button key=${i} onClick=${()=>{const a=Object.assign({},ans);a[q.id]=i;setAns(a);}} className="w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition ${s?'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400':'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-600'}">
-              <span className="inline-flex items-center justify-center w-6 h-6 rounded-lg mr-3 text-xs font-bold ${s?'bg-primary-600 text-white':'bg-gray-100 dark:bg-white/5 text-gray-500'}">${String.fromCharCode(65+i)}</span>${opt}
-            </button>`;
-          })}
-        </div>
-      </div>
-      <div className="flex justify-between">
-        <button onClick=${()=>setCq(Math.max(0,cq-1))} disabled=${cq===0} className="px-4 py-2.5 bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 rounded-xl text-sm font-medium disabled:opacity-30 transition">Previous</button>
-        ${cq<active.qs.length-1?
-          html`<button onClick=${()=>setCq(cq+1)} className="px-4 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold shadow-md shadow-primary-500/25 transition">Next</button>`:
-          html`<button onClick=${submit} className="px-5 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary-500/25 transition">Submit Quiz</button>`
-        }
-      </div>
-    </div>`;
+    var q=active.qs[cq];
+    return e('div',{className:"af max-w-2xl mx-auto space-y-6"},
+      e('div',{className:"flex items-center justify-between"},e('h2',{className:"text-lg font-bold"},active.title),e('span',{className:"text-sm text-gray-500"},(cq+1)+'/'+active.qs.length)),
+      e('div',{className:"w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden"},e('div',{className:"h-full bg-gradient-to-r from-primary-500 to-primary-400 rounded-full transition-all",style:{width:(cq+1)/active.qs.length*100+'%'}})),
+      e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm"},
+        e('p',{className:"font-semibold mb-5"},q.q),
+        e('div',{className:"space-y-3"},q.opts.map(function(opt,i){
+          var s2=ans[q.id]===i;
+          return e('button',{key:i,onClick:function(){var a2=Object.assign({},ans);a2[q.id]=i;setAns(a2);},className:"w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition "+(s2?"border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400":"border-gray-200 dark:border-gray-700 hover:border-primary-300")},
+            e('span',{className:"inline-flex items-center justify-center w-6 h-6 rounded-lg mr-3 text-xs font-bold "+(s2?"bg-primary-600 text-white":"bg-gray-100 dark:bg-white/5 text-gray-500")},String.fromCharCode(65+i)),opt
+          );
+        }))
+      ),
+      e('div',{className:"flex justify-between"},
+        e('button',{onClick:function(){setCq(Math.max(0,cq-1));},disabled:cq===0,className:"px-4 py-2.5 bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 rounded-xl text-sm font-medium disabled:opacity-30 transition"},"Previous"),
+        cq<active.qs.length-1?e('button',{onClick:function(){setCq(cq+1);},className:"px-4 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold shadow-md transition"},"Next"):e('button',{onClick:submit,className:"px-5 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl text-sm font-semibold shadow-lg transition"},"Submit Quiz")
+      )
+    );
   }
 
+  // Results
   if(active&&results){
-    const sc=active.score;
-    return html`<div className="af max-w-2xl mx-auto space-y-6">
-      <div className="bg-white dark:bg-surface-800 rounded-2xl p-8 border border-gray-100 dark:border-gray-700/40 shadow-sm text-center">
-        <div className="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-4 ${sc>=80?'bg-emerald-100 dark:bg-emerald-900/20':sc>=60?'bg-amber-100 dark:bg-amber-900/20':'bg-red-100 dark:bg-red-900/20'}">
-          <span className="text-3xl font-bold ${sc>=80?'text-emerald-600':sc>=60?'text-amber-600':'text-red-600'}">${sc}%</span>
-        </div>
-        <h2 className="text-xl font-bold mb-1">${sc>=80?'Excellent Work!':sc>=60?'Good Effort!':'Keep Studying!'}</h2>
-        <p className="text-gray-500 text-sm">You answered ${active.qs.filter(q=>q.ua===q.ans).length} of ${active.qs.length} correctly.</p>
-        <div className="flex justify-center gap-3 mt-6">
-          <button onClick=${()=>{setActive(null);setResults(false);}} className="px-5 py-2.5 bg-gray-100 dark:bg-white/5 rounded-xl text-sm font-medium transition">Back to Quizzes</button>
-          <button onClick=${()=>{ctx.setQuizzes(p=>p.map(q=>q.id===active.id?Object.assign({},q,{saved:true}):q));ctx.addToast('Quiz saved!','success');}} className="px-5 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary-500/25 transition"><i className="fas fa-bookmark mr-2"></i>Save Quiz</button>
-        </div>
-      </div>
-      <div className="space-y-3">
-        ${active.qs.map(q=>{
-          const ok=q.ua===q.ans;
-          return html`<div key=${q.id} className="p-4 rounded-xl border ${ok?'border-emerald-200 dark:border-emerald-800/40 bg-emerald-50/50 dark:bg-emerald-900/10':'border-red-200 dark:border-red-800/40 bg-red-50/50 dark:bg-red-900/10'}">
-            <div className="flex items-start gap-3">
-              <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${ok?'bg-emerald-500 text-white':'bg-red-500 text-white'}"><i className="fas ${ok?'fa-check':'fa-times'} text-xs"></i></span>
-              <div><p className="text-sm font-medium mb-1">${q.q}</p>
-              ${!ok&&html`<p className="text-xs text-gray-500">Your answer: ${q.opts[q.ua]||'None'} · Correct: <strong>${q.opts[q.ans]}</strong></p>`}</div>
-            </div>
-          </div>`;
-        })}
-      </div>
-    </div>`;
+    var sc2=active.score;
+    return e('div',{className:"af max-w-2xl mx-auto space-y-6"},
+      e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-8 border border-gray-100 dark:border-gray-700/40 shadow-sm text-center"},
+        e('div',{className:"w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-4 "+(sc2>=80?"bg-emerald-100 dark:bg-emerald-900/20":sc2>=60?"bg-amber-100 dark:bg-amber-900/20":"bg-red-100 dark:bg-red-900/20")},e('span',{className:"text-3xl font-bold "+(sc2>=80?"text-emerald-600":sc2>=60?"text-amber-600":"text-red-600")},sc2+'%')),
+        e('h2',{className:"text-xl font-bold mb-1"},sc2>=80?'Excellent!':sc2>=60?'Good Effort!':'Keep Studying!'),
+        e('p',{className:"text-gray-500 text-sm"},"You answered "+active.qs.filter(function(qx){return qx.ua===qx.ans;}).length+" of "+active.qs.length+" correctly."),
+        e('div',{className:"flex justify-center gap-3 mt-6"},
+          e('button',{onClick:function(){setActive(null);setResults(false);},className:"px-5 py-2.5 bg-gray-100 dark:bg-white/5 rounded-xl text-sm font-medium transition"},"Back"),
+          e('button',{onClick:function(){ctx.setQuizzes(function(p){return p.map(function(qx){return qx.id===active.id?Object.assign({},qx,{saved:true}):qx;});});ctx.addToast('Saved!','success');},className:"px-5 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl text-sm font-semibold shadow-lg transition"},e('i',{className:"fas fa-bookmark mr-2"}),"Save Quiz")
+        )
+      ),
+      e('div',{className:"space-y-3"},active.qs.map(function(qx){
+        var ok=qx.ua===qx.ans;
+        return e('div',{key:qx.id,className:"p-4 rounded-xl border "+(ok?"border-emerald-200 dark:border-emerald-800/40 bg-emerald-50/50 dark:bg-emerald-900/10":"border-red-200 dark:border-red-800/40 bg-red-50/50 dark:bg-red-900/10")},
+          e('div',{className:"flex items-start gap-3"},
+            e('span',{className:"w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 "+(ok?"bg-emerald-500 text-white":"bg-red-500 text-white")},e('i',{className:"fas "+(ok?"fa-check":"fa-times")+" text-xs"})),
+            e('div',null,e('p',{className:"text-sm font-medium mb-1"},qx.q),!ok?e('p',{className:"text-xs text-gray-500"},"Yours: "+(qx.opts[qx.ua]||'None')+" · Correct: "+qx.opts[qx.ans]):null)
+          )
+        );
+      }))
+    );
   }
 
-  return html`<div className="af max-w-3xl mx-auto space-y-6">
-    <div><h1 className="text-2xl font-bold">Quizzes</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Test your knowledge with AI-generated quizzes.</p></div>
-    <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm space-y-4">
-      <div className="flex flex-col sm:flex-row gap-3">
-        <select value=${sel} onChange=${e=>setSel(e.target.value)} className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm">
-          <option value="">Select document...</option>
-          ${ctx.docs.map(d=>html`<option key=${d.id} value=${d.id}>${d.name}</option>`)}
-        </select>
-        <button onClick=${gen} disabled=${gening} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-400 text-white rounded-xl text-sm font-semibold shadow-lg shadow-amber-500/25 transition disabled:opacity-60">
-          ${gening?html`<${Spin} size="sm" />`:html`<i className="fas fa-magic text-xs"></i>`}Generate Quiz
-        </button>
-      </div>
-      <div className="flex gap-2">
-        <button onClick=${()=>setSavedOnly(false)} className="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${!savedOnly?'bg-primary-600 text-white':'bg-gray-100 dark:bg-white/5 text-gray-500'}">All Quizzes</button>
-        <button onClick=${()=>setSavedOnly(true)} className="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${savedOnly?'bg-primary-600 text-white':'bg-gray-100 dark:bg-white/5 text-gray-500'}">Saved Only</button>
-      </div>
-    </div>
-    ${dq.length===0?html`<div className="text-center py-16"><i className="fas fa-question-circle text-4xl text-gray-300 dark:text-gray-600 mb-3 block"></i><p className="text-gray-400 text-sm">Generate a quiz to get started</p></div>`:
-    html`<div className="space-y-3">
-      ${dq.map((q,i)=>html`<div key=${q.id} className="bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm hover:shadow-md transition af" style=${{animationDelay:i*60+'ms'}}>
-        <div className="flex items-center justify-between">
-          <div><h3 className="font-semibold text-sm">${q.title}</h3>
-            <div className="flex items-center gap-3 mt-1">
-              <span className="text-xs text-gray-400">${q.qs.length} questions</span>
-              ${q.score!==undefined&&html`<span className="text-xs font-semibold ${q.score>=80?'text-emerald-500':q.score>=60?'text-amber-500':'text-red-500'}">Score: ${q.score}%</span>`}
-              ${q.date&&html`<span className="text-xs text-gray-400">${q.date}</span>`}
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button onClick=${()=>{setActive(q);setCq(0);setAns({});setResults(false);}} className="px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-lg text-xs font-semibold hover:bg-primary-100 dark:hover:bg-primary-900/40 transition">${q.score!==undefined?'Review':'Take Quiz'}</button>
-            <button onClick=${()=>{ctx.setQuizzes(p=>p.map(x=>x.id===q.id?Object.assign({},x,{saved:!x.saved}):x));ctx.addToast(q.saved?'Quiz unsaved':'Quiz saved!','success');}} className="w-8 h-8 rounded-lg flex items-center justify-center transition ${q.saved?'text-amber-500 bg-amber-50 dark:bg-amber-900/20':'text-gray-400 bg-gray-50 dark:bg-white/5'}"><i className="fas fa-bookmark text-xs"></i></button>
-          </div>
-        </div>
-      </div>`)}
-    </div>`}
-  </div>`;
+  // Quiz list
+  return e('div',{className:"af max-w-3xl mx-auto space-y-6"},
+    e('div',null,e('h1',{className:"text-2xl font-bold"},"Quizzes"),e('p',{className:"text-gray-500 dark:text-gray-400 text-sm mt-1"},"AI-generated quizzes.")),
+    e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm space-y-4"},
+      e('div',{className:"flex flex-col sm:flex-row gap-3"},
+        e('select',{value:sel,onChange:function(ev){setSel(ev.target.value);},className:"flex-1 px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm"},e('option',{value:""},"Select document..."),ctx.docs.map(function(d2){return e('option',{key:d2.id,value:d2.id},d2.name);})),
+        e('button',{onClick:gen,disabled:gening,className:"flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-400 text-white rounded-xl text-sm font-semibold shadow-lg shadow-amber-500/25 transition disabled:opacity-60"},gening?e(Spin,{size:"sm"}):e('i',{className:"fas fa-magic text-xs"}),"Generate Quiz")
+      ),
+      e('div',{className:"flex gap-2"},
+        e('button',{onClick:function(){setSavedOnly(false);},className:"px-3 py-1.5 rounded-lg text-xs font-semibold transition "+(!savedOnly?"bg-primary-600 text-white":"bg-gray-100 dark:bg-white/5 text-gray-500")},"All"),
+        e('button',{onClick:function(){setSavedOnly(true);},className:"px-3 py-1.5 rounded-lg text-xs font-semibold transition "+(savedOnly?"bg-primary-600 text-white":"bg-gray-100 dark:bg-white/5 text-gray-500")},"Saved")
+      )
+    ),
+    dq.length===0?e('div',{className:"text-center py-16"},e('i',{className:"fas fa-question-circle text-4xl text-gray-300 dark:text-gray-600 mb-3 block"}),e('p',{className:"text-gray-400 text-sm"},"No quizzes yet")):
+    e('div',{className:"space-y-3"},dq.map(function(q,i){return e('div',{key:q.id,className:"bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm hover:shadow-md transition af",style:{animationDelay:i*60+'ms'}},
+      e('div',{className:"flex items-center justify-between"},
+        e('div',null,e('h3',{className:"font-semibold text-sm"},q.title),e('div',{className:"flex items-center gap-3 mt-1"},e('span',{className:"text-xs text-gray-400"},q.qs.length+" questions"),q.score!==undefined?e('span',{className:"text-xs font-semibold "+(q.score>=80?"text-emerald-500":q.score>=60?"text-amber-500":"text-red-500")},"Score: "+q.score+"%"):null,q.date?e('span',{className:"text-xs text-gray-400"},q.date):null)),
+        e('div',{className:"flex gap-2"},
+          e('button',{onClick:function(){setActive(q);setCq(0);setAns({});setResults(false);},className:"px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-lg text-xs font-semibold hover:bg-primary-100 transition"},q.score!==undefined?'Review':'Take Quiz'),
+          e('button',{onClick:function(){ctx.setQuizzes(function(p){return p.map(function(x){return x.id===q.id?Object.assign({},x,{saved:!x.saved}):x;});});ctx.addToast(q.saved?'Unsaved':'Saved!','success');},className:"w-8 h-8 rounded-lg flex items-center justify-center transition "+(q.saved?"text-amber-500 bg-amber-50 dark:bg-amber-900/20":"text-gray-400 bg-gray-50 dark:bg-white/5")},e('i',{className:"fas fa-bookmark text-xs"}))
+        )
+      )
+    );}))
+  );
 }
 
-/* ── Chat ── */
+// ── Chat ──
 function ChatPage(){
-  const ctx=useContext(Ctx);
-  const[msgs,setMsgs]=useState([{role:'asst',content:'Hello! I can answer questions based on your uploaded documents. Select a document and ask me anything!'}]);
-  const[inp,setInp]=useState('');
-  const[typing,setTyping]=useState(false);
-  const[sel,setSel]=useState('');
-  const endRef=useRef(null);
+  var ctx=useContext(Ctx);
+  var m2=useState([{role:'asst',content:'Hello! I can answer questions about your documents. Select one and ask me anything!'}]),msgs=m2[0],setMsgs=m2[1];
+  var ip=useState(''),inp=ip[0],setInp=ip[1];
+  var tp=useState(false),typing=tp[0],setTyping=tp[1];
+  var s2=useState(''),sel=s2[0],setSel=s2[1];
+  var endRef=useRef(null);
 
-  useEffect(()=>{if(endRef.current)endRef.current.scrollIntoView({behavior:'smooth'});},[msgs]);
+  useEffect(function(){if(endRef.current)endRef.current.scrollIntoView({behavior:'smooth'});},[msgs]);
 
   function send(){
     if(!inp.trim())return;
-    setMsgs(p=>[...p,{role:'user',content:inp}]);setInp('');setTyping(true);
-    const lo=inp.toLowerCase();
-    let r='Based on the document, I can provide insights about key concepts, mechanisms, and applications. Could you ask a more specific question?';
-    if(lo.indexOf('what')>=0)r='The document covers several key concepts fundamental to the subject. The main ideas revolve around core principles, their mechanisms, and practical applications.';
-    else if(lo.indexOf('how')>=0)r='The processes described work through interconnected steps. Each builds on the previous one, and understanding the underlying mechanisms is crucial for grasping the overall workflow.';
-    else if(lo.indexOf('why')>=0)r='Understanding these concepts is important because they form the foundation for more advanced topics. The practical applications demonstrate why mastering these fundamentals matters.';
-    else if(lo.indexOf('compare')>=0||lo.indexOf('difference')>=0)r='The document highlights key differences and similarities between approaches. Each has strengths and limitations, and the choice depends on specific context and requirements.';
-    else if(lo.indexOf('explain')>=0||lo.indexOf('describe')>=0)r='The core idea is that these concepts are interconnected and build upon each other. The document progressively introduces more complex ideas, connecting back to foundational principles.';
-    const doc=ctx.docs.find(d=>d.id===sel);
+    setMsgs(function(p){return p.concat([{role:'user',content:inp}]);});setInp('');setTyping(true);
+    var lo=inp.toLowerCase();
+    var r='I can provide insights about key concepts and applications. Ask something more specific!';
+    if(lo.indexOf('what')>=0)r='The document covers key concepts fundamental to the subject — core principles, mechanisms, and practical applications.';
+    else if(lo.indexOf('how')>=0)r='The processes work through interconnected steps. Each builds on the previous, and understanding the underlying mechanisms is crucial.';
+    else if(lo.indexOf('why')>=0)r='These concepts are foundational for advanced topics. Practical applications demonstrate why mastering fundamentals matters.';
+    else if(lo.indexOf('compare')>=0||lo.indexOf('difference')>=0)r='Key differences and similarities exist between approaches. Each has strengths and limitations depending on context.';
+    else if(lo.indexOf('explain')>=0||lo.indexOf('describe')>=0)r='These concepts are interconnected and build upon each other. The document progressively introduces more complex ideas.';
+    var doc=ctx.docs.find(function(d2){return d2.id===sel;});
     r='Based on "'+(doc?doc.name:'your document')+'":\n\n'+r;
-    setTimeout(()=>{setMsgs(p=>[...p,{role:'asst',content:r}]);setTyping(false);},1500);
+    setTimeout(function(){setMsgs(function(p){return p.concat([{role:'asst',content:r}]);});setTyping(false);},1500);
   }
 
-  return html`<div className="af flex flex-col" style=${{height:'calc(100vh - 8rem)'}}>
-    <div className="mb-4"><h1 className="text-2xl font-bold">AI Chat</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Ask questions about your uploaded documents.</p></div>
-    <div className="flex items-center gap-3 mb-4">
-      <select value=${sel} onChange=${e=>setSel(e.target.value)} className="px-4 py-2 bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 rounded-xl text-sm">
-        <option value="">Select a document...</option>
-        ${ctx.docs.map(d=>html`<option key=${d.id} value=${d.id}>${d.name}</option>`)}
-      </select>
-    </div>
-    <div className="flex-1 bg-white dark:bg-surface-800 rounded-2xl border border-gray-100 dark:border-gray-700/40 shadow-sm flex flex-col overflow-hidden min-h-0">
-      <div className="flex-1 overflow-y-auto p-5 space-y-4">
-        ${msgs.map((m,i)=>html`<div key=${i} className="flex ${m.role==='user'?'justify-end':'justify-start'} af">
-          <div className="max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${m.role==='user'?'bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-br-md':'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 rounded-bl-md'}">
-            ${m.role==='asst'&&html`<div className="flex items-center gap-2 mb-2"><div className="w-5 h-5 rounded-md bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center"><i className="fas fa-brain text-primary-600 dark:text-primary-400 text-xs"></i></div><span className="text-xs font-semibold text-primary-600 dark:text-primary-400">StudyMind AI</span></div>`}
-            <div className="whitespace-pre-wrap">${m.content}</div>
-          </div>
-        </div>`)}
-        ${typing&&html`<div className="flex justify-start"><div className="bg-gray-100 dark:bg-white/5 px-4 py-3 rounded-2xl rounded-bl-md"><div className="flex gap-1"><span className="w-2 h-2 bg-gray-400 rounded-full afl"></span><span className="w-2 h-2 bg-gray-400 rounded-full afl" style=${{animationDelay:'0.15s'}}></span><span className="w-2 h-2 bg-gray-400 rounded-full afl" style=${{animationDelay:'0.3s'}}></span></div></div></div>`}
-        <div ref=${endRef}/>
-      </div>
-      <div className="p-4 border-t border-gray-100 dark:border-gray-700/40">
-        <form onSubmit=${e=>{e.preventDefault();send();}} className="flex gap-2">
-          <input value=${inp} onChange=${e=>setInp(e.target.value)} placeholder="Ask about your documents..." className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm"/>
-          <button type="submit" className="w-10 h-10 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl flex items-center justify-center shadow-md shadow-primary-500/25 transition hover:shadow-lg"><i className="fas fa-paper-plane text-sm"></i></button>
-        </form>
-      </div>
-    </div>
-  </div>`;
+  return e('div',{className:"af flex flex-col",style:{height:'calc(100vh - 8rem)'}},
+    e('div',{className:"mb-4"},e('h1',{className:"text-2xl font-bold"},"AI Chat"),e('p',{className:"text-gray-500 dark:text-gray-400 text-sm mt-1"},"Ask about your documents.")),
+    e('div',{className:"flex items-center gap-3 mb-4"},e('select',{value:sel,onChange:function(ev){setSel(ev.target.value);},className:"px-4 py-2 bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700/40 rounded-xl text-sm"},e('option',{value:""},"Select a document..."),ctx.docs.map(function(d2){return e('option',{key:d2.id,value:d2.id},d2.name);}))),
+    e('div',{className:"flex-1 bg-white dark:bg-surface-800 rounded-2xl border border-gray-100 dark:border-gray-700/40 shadow-sm flex flex-col overflow-hidden min-h-0"},
+      e('div',{className:"flex-1 overflow-y-auto p-5 space-y-4"},
+        msgs.map(function(msg,i){return e('div',{key:i,className:"flex "+(msg.role==='user'?"justify-end":"justify-start")+" af"},
+          e('div',{className:"max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed "+(msg.role==='user'?"bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-br-md":"bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 rounded-bl-md")},
+            msg.role==='asst'?e('div',{className:"flex items-center gap-2 mb-2"},e('div',{className:"w-5 h-5 rounded-md bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center"},e('i',{className:"fas fa-brain text-primary-600 dark:text-primary-400 text-xs"})),e('span',{className:"text-xs font-semibold text-primary-600 dark:text-primary-400"},"StudyMind AI")):null,
+            e('div',{className:"whitespace-pre-wrap"},msg.content)
+          )
+        );}),
+        typing?e('div',{className:"flex justify-start"},e('div',{className:"bg-gray-100 dark:bg-white/5 px-4 py-3 rounded-2xl rounded-bl-md"},e('div',{className:"flex gap-1"},e('span',{className:"w-2 h-2 bg-gray-400 rounded-full afl"}),e('span',{className:"w-2 h-2 bg-gray-400 rounded-full afl",style:{animationDelay:'0.15s'}}),e('span',{className:"w-2 h-2 bg-gray-400 rounded-full afl",style:{animationDelay:'0.3s'}})))):null,
+        e('div',{ref:endRef})
+      ),
+      e('div',{className:"p-4 border-t border-gray-100 dark:border-gray-700/40"},
+        e('form',{onSubmit:function(ev){ev.preventDefault();send();},className:"flex gap-2"},
+          e('input',{value:inp,onChange:function(ev){setInp(ev.target.value);},placeholder:"Ask about your documents...",className:"flex-1 px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm"}),
+          e('button',{type:"submit",className:"w-10 h-10 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl flex items-center justify-center shadow-md transition hover:shadow-lg"},e('i',{className:"fas fa-paper-plane text-sm"}))
+        )
+      )
+    )
+  );
 }
 
-/* ── Progress ── */
+// ── Progress ──
 function ProgressPage(){
-  const{dark}=useContext(Ctx);
-  const cRef=useRef(null),cInst=useRef(null);
-  const[period,setPeriod]=useState('week');
+  var ctx=useContext(Ctx);
+  var cRef=useRef(null),cInst=useRef(null);
+  var p2=useState('week'),period=p2[0],setPeriod=p2[1];
 
-  useEffect(()=>{
-    if(!cRef.current)return;
-    if(cInst.current)cInst.current.destroy();
-    const data=period==='week'?SDATA.weekly:SDATA.weekly.map(v=>v+Math.round(Math.random()*40-20));
-    const labels=period==='week'?['Mon','Tue','Wed','Thu','Fri','Sat','Sun']:['Wk 1','Wk 2','Wk 3','Wk 4','Wk 5','Wk 6','Wk 7'];
-    const ctx2=cRef.current.getContext('2d');
-    const g=ctx2.createLinearGradient(0,0,0,300);
-    g.addColorStop(0,dark?'rgba(20,184,166,0.3)':'rgba(13,148,136,0.15)');
-    g.addColorStop(1,dark?'rgba(20,184,166,0)':'rgba(13,148,136,0)');
-    cInst.current=new Chart(ctx2,{type:'line',data:{labels,datasets:[{data,borderColor:'#0d9488',backgroundColor:g,fill:true,tension:.4,pointRadius:5,pointBackgroundColor:'#0d9488',pointBorderColor:dark?'#141e30':'#fff',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:dark?'#8896ab':'#94a3b8'}},y:{grid:{color:dark?'rgba(255,255,255,.05)':'rgba(0,0,0,.05)'},ticks:{color:dark?'#8896ab':'#94a3b8',callback:v=>v+'m'}}}}});
-    return()=>{if(cInst.current)cInst.current.destroy();};
-  },[dark,period]);
+  useEffect(function(){
+    if(!cRef.current)return;if(cInst.current)cInst.current.destroy();
+    var data=period==='week'?SD.weekly:SD.weekly.map(function(v){return v+Math.round(Math.random()*40-20);});
+    var labels=period==='week'?['Mon','Tue','Wed','Thu','Fri','Sat','Sun']:['Wk 1','Wk 2','Wk 3','Wk 4','Wk 5','Wk 6','Wk 7'];
+    var x=cRef.current.getContext('2d');
+    var g=x.createLinearGradient(0,0,0,300);
+    g.addColorStop(0,ctx.dark?'rgba(20,184,166,0.3)':'rgba(13,148,136,0.15)');g.addColorStop(1,ctx.dark?'rgba(20,184,166,0)':'rgba(13,148,136,0)');
+    cInst.current=new Chart(x,{type:'line',data:{labels:labels,datasets:[{data:data,borderColor:'#0d9488',backgroundColor:g,fill:true,tension:.4,pointRadius:5,pointBackgroundColor:'#0d9488',pointBorderColor:ctx.dark?'#141e30':'#fff',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:ctx.dark?'#8896ab':'#94a3b8'}},y:{grid:{color:ctx.dark?'rgba(255,255,255,.05)':'rgba(0,0,0,.05)'},ticks:{color:ctx.dark?'#8896ab':'#94a3b8',callback:function(v){return v+'m';}}}}}});
+    return function(){if(cInst.current)cInst.current.destroy();};
+  },[ctx.dark,period]);
 
-  const miles=[{l:'Upload first document',d:true,i:'fa-cloud-upload-alt'},{l:'Generate first summary',d:true,i:'fa-compress-alt'},{l:'Create 10 flashcards',d:true,i:'fa-clone'},{l:'Complete 5 quizzes',d:true,i:'fa-check-double'},{l:'7-day study streak',d:true,i:'fa-fire'},{l:'Score 90%+ on a quiz',d:false,i:'fa-trophy'},{l:'Study 1000 total minutes',d:false,i:'fa-clock'}];
+  var miles=[{l:'Upload first document',d:true,i:'fa-cloud-upload-alt'},{l:'Generate first summary',d:true,i:'fa-compress-alt'},{l:'Create 10 flashcards',d:true,i:'fa-clone'},{l:'Complete 5 quizzes',d:true,i:'fa-check-double'},{l:'7-day study streak',d:true,i:'fa-fire'},{l:'Score 90%+ on quiz',d:false,i:'fa-trophy'},{l:'Study 1000 minutes',d:false,i:'fa-clock'}];
 
-  return html`<div className="af space-y-6">
-    <div><h1 className="text-2xl font-bold">Study Progress</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Track your learning journey.</p></div>
-    <div className="grid sm:grid-cols-3 gap-4">
-      <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-6 text-white shadow-lg shadow-orange-500/20">
-        <div className="flex items-center gap-3 mb-2"><i className="fas fa-fire text-2xl"></i><span className="text-sm font-semibold opacity-80">Current Streak</span></div>
-        <div className="text-4xl font-extrabold">${SDATA.streak} days</div>
-      </div>
-      <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm">
-        <div className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1">This Week</div>
-        <div className="text-3xl font-bold">${SDATA.weekly.reduce((a,b)=>a+b,0)}<span className="text-sm font-normal text-gray-400 ml-1">min</span></div>
-        <div className="text-xs text-emerald-500 font-semibold mt-1"><i className="fas fa-arrow-up mr-1"></i>12% from last week</div>
-      </div>
-      <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm">
-        <div className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1">Avg Quiz Score</div>
-        <div className="text-3xl font-bold">${Math.round(SDATA.scores.reduce((a,b)=>a+b,0)/SDATA.scores.length)}<span className="text-sm font-normal text-gray-400 ml-1">%</span></div>
-        <div className="text-xs text-emerald-500 font-semibold mt-1"><i className="fas fa-arrow-up mr-1"></i>5% improvement</div>
-      </div>
-    </div>
-    <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm">
-      <div className="flex items-center justify-between mb-4"><h3 className="font-semibold text-sm">Study Activity</h3>
-        <div className="flex gap-2">${['week','month'].map(p=>html`<button key=${p} onClick=${()=>setPeriod(p)} className="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${period===p?'bg-primary-600 text-white':'bg-gray-100 dark:bg-white/5 text-gray-500'}">${p==='week'?'This Week':'This Month'}</button>`)}</div>
-      </div>
-      <div style=${{height:280}}><canvas ref=${cRef}/></div>
-    </div>
-    <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm">
-      <h3 className="font-semibold text-sm mb-4">Achievements</h3>
-      <div className="space-y-3">
-        ${miles.map((m,i)=>html`<div key=${i} className="flex items-center gap-4 p-3 rounded-xl transition ${m.d?'bg-emerald-50 dark:bg-emerald-900/10':'bg-gray-50 dark:bg-white/5 opacity-50'}">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center ${m.d?'bg-emerald-500 text-white':'bg-gray-200 dark:bg-gray-700 text-gray-400'}"><i className="fas ${m.d?'fa-check':m.i} text-sm"></i></div>
-          <span className="text-sm font-medium ${m.d?'text-emerald-700 dark:text-emerald-400':'text-gray-500 line-through'}">${m.l}</span>
-        </div>`)}
-      </div>
-    </div>
-  </div>`;
+  return e('div',{className:"af space-y-6"},
+    e('div',null,e('h1',{className:"text-2xl font-bold"},"Study Progress"),e('p',{className:"text-gray-500 dark:text-gray-400 text-sm mt-1"},"Track your learning.")),
+    e('div',{className:"grid sm:grid-cols-3 gap-4"},
+      e('div',{className:"bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-6 text-white shadow-lg shadow-orange-500/20"},e('div',{className:"flex items-center gap-3 mb-2"},e('i',{className:"fas fa-fire text-2xl"}),e('span',{className:"text-sm font-semibold opacity-80"},"Current Streak")),e('div',{className:"text-4xl font-extrabold"},SD.streak+" days")),
+      e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm"},e('div',{className:"text-sm text-gray-500 font-medium mb-1"},"This Week"),e('div',{className:"text-3xl font-bold"},SD.weekly.reduce(function(a,b){return a+b;},0),e('span',{className:"text-sm font-normal text-gray-400 ml-1"},"min")),e('div',{className:"text-xs text-emerald-500 font-semibold mt-1"},e('i',{className:"fas fa-arrow-up mr-1"}),"12% from last week")),
+      e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm"},e('div',{className:"text-sm text-gray-500 font-medium mb-1"},"Avg Score"),e('div',{className:"text-3xl font-bold"},Math.round(SD.scores.reduce(function(a,b){return a+b;},0)/SD.scores.length),e('span',{className:"text-sm font-normal text-gray-400 ml-1"},"%")),e('div',{className:"text-xs text-emerald-500 font-semibold mt-1"},e('i',{className:"fas fa-arrow-up mr-1"}),"5% improvement"))
+    ),
+    e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm"},
+      e('div',{className:"flex items-center justify-between mb-4"},e('h3',{className:"font-semibold text-sm"},"Study Activity"),e('div',{className:"flex gap-2"},['week','month'].map(function(p3){return e('button',{key:p3,onClick:function(){setPeriod(p3);},className:"px-3 py-1.5 rounded-lg text-xs font-semibold transition "+(period===p3?"bg-primary-600 text-white":"bg-gray-100 dark:bg-white/5 text-gray-500")},p3==='week'?'This Week':'This Month');}))),
+      e('div',{style:{height:280}},e('canvas',{ref:cRef}))
+    ),
+    e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm"},
+      e('h3',{className:"font-semibold text-sm mb-4"},"Achievements"),
+      e('div',{className:"space-y-3"},miles.map(function(m3,i){return e('div',{key:i,className:"flex items-center gap-4 p-3 rounded-xl transition "+(m3.d?"bg-emerald-50 dark:bg-emerald-900/10":"bg-gray-50 dark:bg-white/5 opacity-50")},
+        e('div',{className:"w-9 h-9 rounded-xl flex items-center justify-center "+(m3.d?"bg-emerald-500 text-white":"bg-gray-200 dark:bg-gray-700 text-gray-400")},e('i',{className:"fas "+(m3.d?"fa-check":m3.i)+" text-sm"})),
+        e('span',{className:"text-sm font-medium "+(m3.d?"text-emerald-700 dark:text-emerald-400":"text-gray-500 line-through")},m3.l)
+      );}))
+    )
+  );
 }
 
-/* ── Profile ── */
+// ── Profile ──
 function ProfilePage(){
-  const ctx=useContext(Ctx);
-  const[editing,setEditing]=useState(false);
-  const[form,setForm]=useState({name:ctx.user?ctx.user.name:'',email:ctx.user?ctx.user.email:'',uni:'Stanford University',major:'Computer Science',year:'Junior',bio:'Passionate about learning and leveraging AI to study more efficiently.'});
-  function uf(k,v){setForm(Object.assign({},form,{[k]:v}));}
+  var ctx=useContext(Ctx);
+  var ed=useState(false),editing=ed[0],setEditing=ed[1];
+  var fm=useState({name:ctx.user?ctx.user.name:'',email:ctx.user?ctx.user.email:'',uni:'Stanford University',major:'Computer Science',year:'Junior',bio:'Passionate about AI-powered study.'}),form=fm[0],setForm=fm[1];
+  function uf(k,v){var n=Object.assign({},form);n[k]=v;setForm(n);}
   function save(){ctx.setUser(Object.assign({},ctx.user,{name:form.name,email:form.email}));setEditing(false);ctx.addToast('Profile updated!','success');}
 
-  return html`<div className="af max-w-3xl mx-auto space-y-6">
-    <div><h1 className="text-2xl font-bold">Profile</h1><p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage your account settings.</p></div>
-    <div className="bg-white dark:bg-surface-800 rounded-2xl border border-gray-100 dark:border-gray-700/40 shadow-sm overflow-hidden">
-      <div className="h-32 bg-gradient-to-r from-primary-600 via-primary-500 to-teal-400 relative">
-        <div className="absolute -bottom-10 left-6"><div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-white dark:border-surface-800 shadow-lg">${(form.name||'S').charAt(0).toUpperCase()}</div></div>
-      </div>
-      <div className="pt-14 px-6 pb-6">
-        <div className="flex items-center justify-between mb-6">
-          <div><h2 className="text-lg font-bold">${form.name}</h2><p className="text-sm text-gray-500 dark:text-gray-400">${form.email}</p></div>
-          <button onClick=${editing?save:()=>setEditing(true)} className="px-4 py-2 rounded-xl text-sm font-semibold transition ${editing?'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-md shadow-primary-500/25':'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400'}">
-            ${editing?html`<i className="fas fa-check mr-2"></i>Save`:html`<i className="fas fa-pen mr-2"></i>Edit`}
-          </button>
-        </div>
-        <div className="grid sm:grid-cols-2 gap-4">
-          ${[{l:'Full Name',k:'name'},{l:'Email',k:'email'},{l:'University',k:'uni'},{l:'Major',k:'major'},{l:'Year',k:'year'},{l:'Bio',k:'bio'}].map(f=>html`<div key=${f.k} className=${f.k==='bio'?'sm:col-span-2':''}>
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">${f.l}</label>
-            ${editing?html`<input value=${form[f.k]} onChange=${e=>uf(f.k,e.target.value)} className="w-full px-3 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm"/>`:html`<p className="text-sm font-medium py-2">${form[f.k]}</p>`}
-          </div>`)}
-        </div>
-      </div>
-    </div>
-    <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm">
-      <h3 className="font-semibold text-sm mb-4">Study Statistics</h3>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        ${[{l:'Documents',v:6,i:'fa-file-alt',c:'text-primary-500'},{l:'Flashcards',v:8,i:'fa-clone',c:'text-violet-500'},{l:'Quizzes',v:2,i:'fa-question-circle',c:'text-amber-500'},{l:'Hours',v:14,i:'fa-clock',c:'text-emerald-500'}].map((s,i)=>html`<div key=${i} className="text-center p-3 rounded-xl bg-gray-50 dark:bg-white/5"><i className="fas ${s.i} ${s.c} text-lg mb-2"></i><div className="text-xl font-bold">${s.v}</div><div className="text-xs text-gray-400 font-medium">${s.l}</div></div>`)}
-      </div>
-    </div>
-    <div className="bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm space-y-3">
-      <h3 className="font-semibold text-sm mb-2">Account</h3>
-      <button className="w-full text-left flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition text-sm"><i className="fas fa-lock text-gray-400 w-5 text-center"></i>Change Password</button>
-      <button className="w-full text-left flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition text-sm"><i className="fas fa-bell text-gray-400 w-5 text-center"></i>Notification Preferences</button>
-      <button className="w-full text-left flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition text-sm"><i className="fas fa-download text-gray-400 w-5 text-center"></i>Export Data</button>
-      <button className="w-full text-left flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/10 transition text-sm text-red-500"><i className="fas fa-sign-out-alt w-5 text-center"></i>Sign Out</button>
-    </div>
-  </div>`;
+  return e('div',{className:"af max-w-3xl mx-auto space-y-6"},
+    e('div',null,e('h1',{className:"text-2xl font-bold"},"Profile"),e('p',{className:"text-gray-500 dark:text-gray-400 text-sm mt-1"},"Account settings.")),
+    e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl border border-gray-100 dark:border-gray-700/40 shadow-sm overflow-hidden"},
+      e('div',{className:"h-32 bg-gradient-to-r from-primary-600 via-primary-500 to-teal-400 relative"},e('div',{className:"absolute -bottom-10 left-6"},e('div',{className:"w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-white dark:border-surface-800 shadow-lg"},(form.name||'S').charAt(0).toUpperCase()))),
+      e('div',{className:"pt-14 px-6 pb-6"},
+        e('div',{className:"flex items-center justify-between mb-6"},e('div',null,e('h2',{className:"text-lg font-bold"},form.name),e('p',{className:"text-sm text-gray-500"},form.email)),e('button',{onClick:editing?save:function(){setEditing(true);},className:"px-4 py-2 rounded-xl text-sm font-semibold transition "+(editing?"bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-md":"bg-gray-100 dark:bg-white/5 text-gray-600")},editing?e('span',null,e('i',{className:"fas fa-check mr-2"}),"Save"):e('span',null,e('i',{className:"fas fa-pen mr-2"}),"Edit"))),
+        e('div',{className:"grid sm:grid-cols-2 gap-4"},[{l:'Full Name',k:'name'},{l:'Email',k:'email'},{l:'University',k:'uni'},{l:'Major',k:'major'},{l:'Year',k:'year'},{l:'Bio',k:'bio'}].map(function(f2){return e('div',{key:f2.k,className:f2.k==='bio'?'sm:col-span-2':''},
+          e('label',{className:"block text-xs font-semibold text-gray-500 mb-1.5"},f2.l),
+          editing?e('input',{value:form[f2.k],onChange:function(ev){uf(f2.k,ev.target.value);},className:"w-full px-3 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm"}):e('p',{className:"text-sm font-medium py-2"},form[f2.k])
+        );}))
+      )
+    ),
+    e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm"},
+      e('h3',{className:"font-semibold text-sm mb-4"},"Statistics"),
+      e('div',{className:"grid grid-cols-2 sm:grid-cols-4 gap-4"},[{l:'Documents',v:6,i:'fa-file-alt',c:'text-primary-500'},{l:'Flashcards',v:8,i:'fa-clone',c:'text-violet-500'},{l:'Quizzes',v:2,i:'fa-question-circle',c:'text-amber-500'},{l:'Hours',v:14,i:'fa-clock',c:'text-emerald-500'}].map(function(s3,i){return e('div',{key:i,className:"text-center p-3 rounded-xl bg-gray-50 dark:bg-white/5"},e('i',{className:"fas "+s3.i+" "+s3.c+" text-lg mb-2"}),e('div',{className:"text-xl font-bold"},s3.v),e('div',{className:"text-xs text-gray-400 font-medium"},s3.l));}))
+    ),
+    e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm space-y-3"},
+      e('h3',{className:"font-semibold text-sm mb-2"},"Account"),
+      e('button',{className:"w-full text-left flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition text-sm"},e('i',{className:"fas fa-lock text-gray-400 w-5 text-center"}),"Change Password"),
+      e('button',{className:"w-full text-left flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition text-sm"},e('i',{className:"fas fa-bell text-gray-400 w-5 text-center"}),"Notifications"),
+      e('button',{className:"w-full text-left flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition text-sm"},e('i',{className:"fas fa-download text-gray-400 w-5 text-center"}),"Export Data"),
+      e('button',{className:"w-full text-left flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/10 transition text-sm text-red-500"},e('i',{className:"fas fa-sign-out-alt w-5 text-center"}),"Sign Out")
+    )
+  );
 }
 
-/* ── App ── */
+// ── App ──
 function App(){
-  const[user,setUser]=useState(()=>{try{const s=localStorage.getItem('sm_u');if(s)return JSON.parse(s);}catch(e){}return null;});
-  const[dark,setDark]=useState(()=>{try{const s=localStorage.getItem('sm_d');if(s!==null)return JSON.parse(s);}catch(e){}return window.matchMedia('(prefers-color-scheme:dark)').matches;});
-  const[docs,setDocs]=useState(DOCS);
-  const[cards,setCards]=useState(CARDS);
-  const[quizzes,setQuizzes]=useState(QUIZZES);
-  const[cur,setCur]=useState('dashboard');
-  const[col,setCol]=useState(true);
-  const[toast,setToast]=useState(null);
+  var stored=null;
+  try{var s2=localStorage.getItem('sm_u');if(s2)stored=JSON.parse(s2);}catch(ex){}
+  var darkSt=true;
+  try{var d2=localStorage.getItem('sm_d');if(d2!==null)darkSt=JSON.parse(d2);else darkSt=window.matchMedia('(prefers-color-scheme:dark)').matches;}catch(ex){}
 
-  const addToast=useCallback((message,type)=>{setToast({message,type:type||'info',id:Date.now()});},[]);
+  var u=useState(stored),user=u[0],setUser=u[1];
+  var dk=useState(darkSt),dark=dk[0],setDark=dk[1];
+  var dc=useState(DOCS),docs=dc[0],setDocs=dc[1];
+  var cd=useState(CARDS),cards=cd[0],setCards=cd[1];
+  var qz=useState(QUIZZES),quizzes=qz[0],setQuizzes=qz[1];
+  var cr=useState('dashboard'),cur=cr[0],setCur=cr[1];
+  var cl=useState(true),col=cl[0],setCol=cl[1];
+  var ts=useState(null),toast=ts[0],setToast=ts[1];
 
-  useEffect(()=>{try{localStorage.setItem('sm_u',JSON.stringify(user));}catch(e){}},[user]);
-  useEffect(()=>{
-    try{localStorage.setItem('sm_d',JSON.stringify(dark));}catch(e){}
-    if(dark)document.documentElement.classList.add('dark');else document.documentElement.classList.remove('dark');
-  },[dark]);
-  useEffect(()=>{
-    const el=document.getElementById('boot');
-    if(el){el.classList.add('done');setTimeout(()=>{el.style.display='none';},700);}
-  },[]);
+  var addToast=useCallback(function(msg,type){setToast({message:msg,type:type||'info',id:Date.now()});},[]);
 
-  const ctx=useMemo(()=>({user,setUser,dark,setDark,docs,setDocs,cards,setCards,quizzes,setQuizzes,addToast}),[user,dark,docs,cards,quizzes,addToast]);
+  useEffect(function(){try{localStorage.setItem('sm_u',JSON.stringify(user));}catch(ex){}},[user]);
+  useEffect(function(){try{localStorage.setItem('sm_d',JSON.stringify(dark));}catch(ex){}if(dark)document.documentElement.classList.add('dark');else document.documentElement.classList.remove('dark');},[dark]);
+  useEffect(function(){var el=document.getElementById('boot');if(el){el.classList.add('done');setTimeout(function(){el.style.display='none';},700);}},[]);
 
-  if(!user)return html`<${Ctx.Provider} value=${ctx}><${AuthPage} /></${Ctx.Provider}>`;
+  var ctx=useMemo(function(){return{user:user,setUser:setUser,dark:dark,setDark:setDark,docs:docs,setDocs:setDocs,cards:cards,setCards:setCards,quizzes:quizzes,setQuizzes:setQuizzes,addToast:addToast};},[user,dark,docs,cards,quizzes,addToast]);
 
-  const pages={dashboard:Dashboard,upload:UploadPage,documents:DocsPage,summarize:SummarizePage,flashcards:FlashcardsPage,quiz:QuizPage,chat:ChatPage,progress:ProgressPage,profile:ProfilePage};
-  const Page=pages[cur]||Dashboard;
+  if(!user)return e(Ctx.Provider,{value:ctx},e(AuthPage,null));
 
-  return html`<${Ctx.Provider} value=${ctx}>
-    <div className="flex min-h-screen">
-      <${Sidebar} cur=${cur} setCur=${setCur} col=${col} setCol=${setCol} />
-      <div className="flex-1 transition-all duration-300 ${col?'lg:ml-20':'lg:ml-64'}">
-        <${TopBar} setCol=${setCol} />
-        <main className="p-4 lg:p-6 max-w-7xl mx-auto">
-          <${Page} setCur=${setCur} />
-        </main>
-      </div>
-    </div>
-    ${toast&&html`<${Toast} key=${toast.id} message=${toast.message} type=${toast.type} onClose=${()=>setToast(null)} />`}
-  </${Ctx.Provider}>`;
+  var pages={dashboard:Dashboard,upload:UploadPage,documents:DocsPage,summarize:SummarizePage,flashcards:FlashcardsPage,quiz:QuizPage,chat:ChatPage,progress:ProgressPage,profile:ProfilePage};
+  var Page=pages[cur]||Dashboard;
+
+  return e(Ctx.Provider,{value:ctx},
+    e('div',{className:"flex min-h-screen"},
+      e(Sidebar,{cur:cur,setCur:setCur,col:col,setCol:setCol}),
+      e('div',{className:"flex-1 transition-all duration-300 "+(col?"lg:ml-20":"lg:ml-64")},
+        e(TopBar,{setCol:setCol}),
+        e('main',{className:"p-4 lg:p-6 max-w-7xl mx-auto"},e(Page,{setCur:setCur}))
+      )
+    ),
+    toast?e(Toast,{key:toast.id,message:toast.message,type:toast.type,onClose:function(){setToast(null);}}):null
+  );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(html`<${App} />`);
+// ── Mount ──
+try{
+  ReactDOM.createRoot(document.getElementById('root')).render(e(App,null));
+}catch(ex){
+  var el=document.getElementById('bmsg');if(el){el.textContent='React Error: '+ex.message;el.style.color='red';}
+}
 
+})();
 </script>
 </body>
 </html>
