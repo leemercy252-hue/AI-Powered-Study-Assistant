@@ -40,50 +40,21 @@ window.onerror=function(m,u,l){var e=document.getElementById('bmsg');if(e){e.tex
 <script>
 (function(){
 
-// Short alias for React.createElement — no template literals, no Babel, no htm
+// Short alias for React.createElement - no template literals, no Babel, no htm
 var e = React.createElement;
 var useState=React.useState, useEffect=React.useEffect, useRef=React.useRef,
     useContext=React.useContext, createContext=React.createContext,
     useMemo=React.useMemo, useCallback=React.useCallback;
 
-// ── Data ──
-var DOCS=[
-  {id:'d1',name:'Introduction to Machine Learning',type:'pdf',size:'4.2 MB',date:'2024-12-01',cat:'Computer Science'},
-  {id:'d2',name:'Organic Chemistry - Reaction Mechanisms',type:'pdf',size:'3.8 MB',date:'2024-11-28',cat:'Chemistry'},
-  {id:'d3',name:'Data Structures - Trees and Graphs',type:'docx',size:'2.1 MB',date:'2024-11-25',cat:'Computer Science'},
-  {id:'d4',name:'Modern European History 1815-1914',type:'txt',size:'1.5 MB',date:'2024-11-20',cat:'History'},
-  {id:'d5',name:'Calculus II - Integration Techniques',type:'pdf',size:'5.0 MB',date:'2024-11-15',cat:'Mathematics'},
-  {id:'d6',name:'Psychology - Cognitive Behavioral Therapy',type:'docx',size:'2.7 MB',date:'2024-11-10',cat:'Psychology'}
-];
-var CARDS=[
-  {id:'f1',did:'d1',front:'What is the bias-variance tradeoff?',back:'Balance between fitting training data (low bias) and generalizing to unseen data (low variance). More complexity reduces bias but increases variance.',saved:true},
-  {id:'f2',did:'d1',front:'Supervised vs unsupervised learning?',back:'Supervised uses labeled data. Unsupervised finds patterns in unlabeled data.',saved:true},
-  {id:'f3',did:'d2',front:'SN1 vs SN2?',back:'SN1: two-step, unimolecular, racemization. SN2: one-step concerted, bimolecular, inversion.',saved:false},
-  {id:'f4',did:'d3',front:'BFS vs DFS?',back:'BFS for shortest paths. DFS for topological sorting and cycle detection.',saved:true},
-  {id:'f5',did:'d5',front:'When use trig substitution?',back:'Integrands with sqrt(a²-x²), sqrt(a²+x²), or sqrt(x²-a²).',saved:false},
-  {id:'f6',did:'d6',front:'Common CBT distortions?',back:'All-or-nothing, overgeneralization, mental filter, disqualifying positives, jumping to conclusions, magnification, emotional reasoning, should statements, labeling, personalization.',saved:true}
-];
-var QUIZZES=[
-  {id:'q1',did:'d1',title:'Machine Learning Fundamentals',saved:true,score:80,date:'2024-12-02',qs:[
-    {id:'q1a',q:'Which uses labeled training data?',opts:['Unsupervised','Reinforcement','Supervised','Self-supervised'],ans:2,ua:2},
-    {id:'q1b',q:'What happens on overfitting?',opts:['Generalizes well','Learns noise','High bias','Underperforms training'],ans:1,ua:1},
-    {id:'q1c',q:'NOT a regularization technique?',opts:['L1','Dropout','Data Augmentation','Gradient Descent'],ans:3,ua:0},
-    {id:'q1d',q:'Bias-variance tradeoff suggests:',opts:['More complexity helps both','Less complexity always better','Reducing bias often increases variance','They are independent'],ans:2,ua:2},
-    {id:'q1e',q:'Handles non-linear boundaries?',opts:['Linear Regression','Logistic Regression','SVM RBF','Naive Bayes'],ans:2,ua:2}
-  ]},
-  {id:'q2',did:'d2',title:'Organic Chemistry',saved:true,score:60,date:'2024-11-29',qs:[
-    {id:'q2a',q:'SN2 results in:',opts:['Racemization','Inversion','Retention','No change'],ans:1,ua:1},
-    {id:'q2b',q:'Favors SN1?',opts:['Strong nucleophile','Primary','Tertiary','Low temp'],ans:2,ua:2},
-    {id:'q2c',q:'E2 requires:',opts:['Carbocation','Anti-periplanar','Weak base only','Protic solvent'],ans:1,ua:0},
-    {id:'q2d',q:'Curved arrow means:',opts:['Decay','Electron pair movement','Photon','Vibration'],ans:1,ua:1},
-    {id:'q2e',q:'Best SN1 solvent?',opts:['Acetone','Water','Hexane','Ether'],ans:1,ua:2}
-  ]}
-];
-var SD={weekly:[120,95,140,80,160,110,135],scores:[75,80,60,90,85,95],subj:{CS:35,Chem:20,Math:18,Hist:12,Psych:15},streak:12,hours:840,cards:156,quizN:24};
+// Data
+var DOCS=[];
+var CARDS=[];
+var QUIZZES=[];
+var SD={weekly:[0,0,0,0,0,0,0],scores:[],subj:{CS:0,Chem:0,Math:0,Hist:0,Psych:0},streak:0,hours:0,cards:0,quizN:0};
 
 var Ctx=createContext();
 
-// ── Helpers ──
+// Helpers
 function tI(t){return t==='pdf'?'fa-file-pdf':t==='docx'?'fa-file-word':'fa-file-alt';}
 function tC(t){return t==='pdf'?'bg-red-100 dark:bg-red-900/20 text-red-500':t==='docx'?'bg-blue-100 dark:bg-blue-900/20 text-blue-500':'bg-gray-100 dark:bg-gray-800 text-gray-500';}
 
@@ -103,7 +74,7 @@ function Spin(props){
   return e('div',{className:s+" rounded-full",style:{borderWidth:3,borderStyle:'solid',borderColor:'#99f6e4',borderTopColor:'#0d9488',animation:'spin .8s linear infinite'}});
 }
 
-// ── Auth ──
+// Auth
 function AuthPage(){
   var ctx=useContext(Ctx);
   var m=useState('login'),mode=m[0],setMode=m[1];
@@ -201,7 +172,7 @@ function AuthPage(){
   );
 }
 
-// ── Sidebar ──
+// Sidebar
 function Sidebar(props){
   var ctx=useContext(Ctx);
   var cur=props.cur,setCur=props.setCur,col=props.col,setCol=props.setCol;
@@ -233,7 +204,7 @@ function Sidebar(props){
   );
 }
 
-// ── TopBar ──
+// TopBar
 function TopBar(props){
   var ctx=useContext(Ctx);
   var s=useState(''),sv=s[0],setS=s[1];
@@ -253,7 +224,7 @@ function TopBar(props){
   );
 }
 
-// ── Dashboard ──
+// Dashboard
 function Dashboard(props){
   var ctx=useContext(Ctx);
   var r1=useRef(null),r2=useRef(null),r3=useRef(null);
@@ -271,9 +242,11 @@ function Dashboard(props){
 
   useEffect(function(){
     if(!r2.current)return;if(c2.current)c2.current.destroy();
-    c2.current=new Chart(r2.current.getContext('2d'),{type:'doughnut',data:{labels:Object.keys(SD.subj),datasets:[{data:Object.values(SD.subj),backgroundColor:['#0d9488','#f59e0b','#6366f1','#ec4899','#8b5cf6'],borderWidth:0,spacing:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{position:'right',labels:{color:ctx.dark?'#cbd5e1':'#475569',font:{size:11},padding:12,usePointStyle:true,pointStyleWidth:8}}}}});
+    var counts=ctx.docs.reduce(function(acc,d){var k=d.cat||'General';acc[k]=(acc[k]||0)+1;return acc;},{});
+    var labels=Object.keys(counts),values=labels.map(function(k){return counts[k];});
+    c2.current=new Chart(r2.current.getContext('2d'),{type:'doughnut',data:{labels:labels,datasets:[{data:values,backgroundColor:['#0d9488','#f59e0b','#6366f1','#ec4899','#8b5cf6','#14b8a6','#f97316','#64748b'],borderWidth:0,spacing:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:labels.length>0,position:'right',labels:{color:ctx.dark?'#cbd5e1':'#475569',font:{size:11},padding:12,usePointStyle:true,pointStyleWidth:8}}}}});
     return function(){if(c2.current)c2.current.destroy();};
-  },[ctx.dark]);
+  },[ctx.dark,ctx.docs]);
 
   useEffect(function(){
     if(!r3.current)return;if(c3.current)c3.current.destroy();
@@ -281,7 +254,7 @@ function Dashboard(props){
     return function(){if(c3.current)c3.current.destroy();};
   },[ctx.dark]);
 
-  var stats=[{i:'fa-fire',l:'Day Streak',v:SD.streak,c:'from-orange-400 to-red-500',s:'shadow-orange-500/20'},{i:'fa-clock',l:'Total Hours',v:SD.hours,c:'from-primary-400 to-primary-600',s:'shadow-primary-500/20'},{i:'fa-clone',l:'Flashcards',v:SD.cards,c:'from-violet-400 to-violet-600',s:'shadow-violet-500/20'},{i:'fa-check-double',l:'Quizzes',v:SD.quizN,c:'from-amber-400 to-amber-600',s:'shadow-amber-500/20'}];
+  var stats=[{i:'fa-fire',l:'Day Streak',v:SD.streak,c:'from-orange-400 to-red-500',s:'shadow-orange-500/20'},{i:'fa-clock',l:'Total Hours',v:SD.hours,c:'from-primary-400 to-primary-600',s:'shadow-primary-500/20'},{i:'fa-clone',l:'Flashcards',v:ctx.cards.length,c:'from-violet-400 to-violet-600',s:'shadow-violet-500/20'},{i:'fa-check-double',l:'Quizzes',v:ctx.quizzes.length,c:'from-amber-400 to-amber-600',s:'shadow-amber-500/20'}];
 
   return e('div',{className:"af space-y-6"},
     e('div',{className:"flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"},
@@ -303,7 +276,7 @@ function Dashboard(props){
       e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm"},e('h3',{className:"font-semibold mb-4 text-sm"},"Quiz Scores"),e('div',{style:{height:200}},e('canvas',{ref:r3}))),
       e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm"},
         e('div',{className:"flex items-center justify-between mb-4"},e('h3',{className:"font-semibold text-sm"},"Recent Documents"),e('button',{onClick:function(){props.setCur('documents');},className:"text-xs text-primary-600 dark:text-primary-400 font-semibold hover:underline"},"View All")),
-        e('div',{className:"space-y-3"},DOCS.slice(0,4).map(function(d){
+        e('div',{className:"space-y-3"},ctx.docs.slice(0,4).map(function(d){
           return e('div',{key:d.id,className:"flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition cursor-pointer"},
             e('div',{className:"w-9 h-9 rounded-lg flex items-center justify-center "+tC(d.type)},e('i',{className:"fas "+tI(d.type)+" text-sm"})),
             e('div',{className:"flex-1 min-w-0"},e('div',{className:"text-sm font-medium truncate"},d.name),e('div',{className:"text-xs text-gray-400"},d.size+' · '+d.date))
@@ -314,25 +287,32 @@ function Dashboard(props){
   );
 }
 
-// ── Upload ──
+// Upload
 function UploadPage(){
   var ctx=useContext(Ctx);
   var d=useState(false),drag=d[0],setDrag=d[1];
   var u=useState(false),uping=u[0],setUping=u[1];
   var p=useState(0),prog=p[0],setProg=p[1];
+  var c=useState('General'),cat=c[0],setCat=c[1];
 
   function handleF(files){
     if(!files||!files.length)return;
     setUping(true);setProg(0);
     var iv=setInterval(function(){setProg(function(v){if(v>=100){clearInterval(iv);return 100}return v+Math.random()*15;});},200);
     setTimeout(function(){clearInterval(iv);setProg(100);
-      ctx.setDocs(function(prev){return [{id:'d'+Date.now(),name:files[0].name,type:files[0].name.split('.').pop(),size:(files[0].size/1024/1024).toFixed(1)+' MB',date:new Date().toISOString().split('T')[0],cat:'General'}].concat(prev);});
+      ctx.setDocs(function(prev){return [{id:'d'+Date.now(),name:files[0].name,type:files[0].name.split('.').pop(),size:(files[0].size/1024/1024).toFixed(1)+' MB',date:new Date().toISOString().split('T')[0],cat:cat}].concat(prev);});
       setUping(false);ctx.addToast('Document uploaded!','success');
     },2500);
   }
 
   return e('div',{className:"af max-w-2xl mx-auto space-y-6"},
     e('div',null,e('h1',{className:"text-2xl font-bold"},"Upload Study Material"),e('p',{className:"text-gray-500 dark:text-gray-400 text-sm mt-1"},"Upload PDF, DOCX, or TXT files.")),
+    e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700/40 shadow-sm"},
+      e('label',{className:"block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300"},"Subject"),
+      e('select',{value:cat,onChange:function(ev){setCat(ev.target.value);},className:"w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm"},
+        ['General','Computer Science','Chemistry','Mathematics','History','Psychology','Biology','Physics','English'].map(function(s){return e('option',{key:s,value:s},s);})
+      )
+    ),
     e('div',{className:"relative border-2 border-dashed rounded-2xl p-12 text-center transition-all "+(drag?"border-primary-500 bg-primary-50 dark:bg-primary-900/10":"border-gray-300 dark:border-gray-600 hover:border-primary-400"),onDragOver:function(ev){ev.preventDefault();setDrag(true);},onDragLeave:function(){setDrag(false);},onDrop:function(ev){ev.preventDefault();setDrag(false);handleF(ev.dataTransfer.files);}},
       e('input',{type:"file",accept:".pdf,.docx,.txt",className:"absolute inset-0 opacity-0 cursor-pointer",onChange:function(ev){handleF(ev.target.files);}}),
       e('div',{className:"w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 transition "+(drag?"bg-primary-100 dark:bg-primary-900/30":"bg-gray-100 dark:bg-white/5")},e('i',{className:"fas fa-cloud-upload-alt text-2xl "+(drag?"text-primary-500":"text-gray-400")})),
@@ -352,7 +332,7 @@ function UploadPage(){
   );
 }
 
-// ── Documents ──
+// Documents
 function DocsPage(props){
   var ctx=useContext(Ctx);
   var s=useState(''),search=s[0],setSearch=s[1];
@@ -381,7 +361,7 @@ function DocsPage(props){
   );
 }
 
-// ── Summarize ──
+// Summarize
 function SummarizePage(){
   var ctx=useContext(Ctx);
   var s=useState(''),sel=s[0],setSel=s[1];
@@ -410,7 +390,7 @@ function SummarizePage(){
   );
 }
 
-// ── Flashcards ──
+// Flashcards
 function FlashcardsPage(){
   var ctx=useContext(Ctx);
   var s=useState(''),sel=s[0],setSel=s[1];
@@ -470,7 +450,7 @@ function FlashcardsPage(){
   );
 }
 
-// ── Quiz ──
+// Quiz
 function QuizPage(){
   var ctx=useContext(Ctx);
   var s=useState(''),sel=s[0],setSel=s[1];
@@ -572,7 +552,7 @@ function QuizPage(){
   );
 }
 
-// ── Chat ──
+// Chat
 function ChatPage(){
   var ctx=useContext(Ctx);
   var m2=useState([{role:'asst',content:'Hello! I can answer questions about your documents. Select one and ask me anything!'}]),msgs=m2[0],setMsgs=m2[1];
@@ -622,7 +602,7 @@ function ChatPage(){
   );
 }
 
-// ── Progress ──
+// Progress
 function ProgressPage(){
   var ctx=useContext(Ctx);
   var cRef=useRef(null),cInst=useRef(null);
@@ -630,7 +610,7 @@ function ProgressPage(){
 
   useEffect(function(){
     if(!cRef.current)return;if(cInst.current)cInst.current.destroy();
-    var data=period==='week'?SD.weekly:SD.weekly.map(function(v){return v+Math.round(Math.random()*40-20);});
+    var data=SD.weekly;
     var labels=period==='week'?['Mon','Tue','Wed','Thu','Fri','Sat','Sun']:['Wk 1','Wk 2','Wk 3','Wk 4','Wk 5','Wk 6','Wk 7'];
     var x=cRef.current.getContext('2d');
     var g=x.createLinearGradient(0,0,0,300);
@@ -639,14 +619,14 @@ function ProgressPage(){
     return function(){if(cInst.current)cInst.current.destroy();};
   },[ctx.dark,period]);
 
-  var miles=[{l:'Upload first document',d:true,i:'fa-cloud-upload-alt'},{l:'Generate first summary',d:true,i:'fa-compress-alt'},{l:'Create 10 flashcards',d:true,i:'fa-clone'},{l:'Complete 5 quizzes',d:true,i:'fa-check-double'},{l:'7-day study streak',d:true,i:'fa-fire'},{l:'Score 90%+ on quiz',d:false,i:'fa-trophy'},{l:'Study 1000 minutes',d:false,i:'fa-clock'}];
+  var miles=[{l:'Upload first document',d:false,i:'fa-cloud-upload-alt'},{l:'Generate first summary',d:false,i:'fa-compress-alt'},{l:'Create 10 flashcards',d:false,i:'fa-clone'},{l:'Complete 5 quizzes',d:false,i:'fa-check-double'},{l:'7-day study streak',d:false,i:'fa-fire'},{l:'Score 90%+ on quiz',d:false,i:'fa-trophy'},{l:'Study 1000 minutes',d:false,i:'fa-clock'}];
 
   return e('div',{className:"af space-y-6"},
     e('div',null,e('h1',{className:"text-2xl font-bold"},"Study Progress"),e('p',{className:"text-gray-500 dark:text-gray-400 text-sm mt-1"},"Track your learning.")),
     e('div',{className:"grid sm:grid-cols-3 gap-4"},
       e('div',{className:"bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-6 text-white shadow-lg shadow-orange-500/20"},e('div',{className:"flex items-center gap-3 mb-2"},e('i',{className:"fas fa-fire text-2xl"}),e('span',{className:"text-sm font-semibold opacity-80"},"Current Streak")),e('div',{className:"text-4xl font-extrabold"},SD.streak+" days")),
-      e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm"},e('div',{className:"text-sm text-gray-500 font-medium mb-1"},"This Week"),e('div',{className:"text-3xl font-bold"},SD.weekly.reduce(function(a,b){return a+b;},0),e('span',{className:"text-sm font-normal text-gray-400 ml-1"},"min")),e('div',{className:"text-xs text-emerald-500 font-semibold mt-1"},e('i',{className:"fas fa-arrow-up mr-1"}),"12% from last week")),
-      e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm"},e('div',{className:"text-sm text-gray-500 font-medium mb-1"},"Avg Score"),e('div',{className:"text-3xl font-bold"},Math.round(SD.scores.reduce(function(a,b){return a+b;},0)/SD.scores.length),e('span',{className:"text-sm font-normal text-gray-400 ml-1"},"%")),e('div',{className:"text-xs text-emerald-500 font-semibold mt-1"},e('i',{className:"fas fa-arrow-up mr-1"}),"5% improvement"))
+      e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm"},e('div',{className:"text-sm text-gray-500 font-medium mb-1"},"This Week"),e('div',{className:"text-3xl font-bold"},SD.weekly.reduce(function(a,b){return a+b;},0),e('span',{className:"text-sm font-normal text-gray-400 ml-1"},"min")),e('div',{className:"text-xs text-gray-400 font-semibold mt-1"},"No study time yet")),
+      e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm"},e('div',{className:"text-sm text-gray-500 font-medium mb-1"},"Avg Score"),e('div',{className:"text-3xl font-bold"},SD.scores.length?Math.round(SD.scores.reduce(function(a,b){return a+b;},0)/SD.scores.length):0,e('span',{className:"text-sm font-normal text-gray-400 ml-1"},"%")),e('div',{className:"text-xs text-gray-400 font-semibold mt-1"},"No quiz scores yet"))
     ),
     e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm"},
       e('div',{className:"flex items-center justify-between mb-4"},e('h3',{className:"font-semibold text-sm"},"Study Activity"),e('div',{className:"flex gap-2"},['week','month'].map(function(p3){return e('button',{key:p3,onClick:function(){setPeriod(p3);},className:"px-3 py-1.5 rounded-lg text-xs font-semibold transition "+(period===p3?"bg-primary-600 text-white":"bg-gray-100 dark:bg-white/5 text-gray-500")},p3==='week'?'This Week':'This Month');}))),
@@ -662,7 +642,7 @@ function ProgressPage(){
   );
 }
 
-// ── Profile ──
+// Profile
 function ProfilePage(){
   var ctx=useContext(Ctx);
   var ed=useState(false),editing=ed[0],setEditing=ed[1];
@@ -684,7 +664,7 @@ function ProfilePage(){
     ),
     e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm"},
       e('h3',{className:"font-semibold text-sm mb-4"},"Statistics"),
-      e('div',{className:"grid grid-cols-2 sm:grid-cols-4 gap-4"},[{l:'Documents',v:6,i:'fa-file-alt',c:'text-primary-500'},{l:'Flashcards',v:8,i:'fa-clone',c:'text-violet-500'},{l:'Quizzes',v:2,i:'fa-question-circle',c:'text-amber-500'},{l:'Hours',v:14,i:'fa-clock',c:'text-emerald-500'}].map(function(s3,i){return e('div',{key:i,className:"text-center p-3 rounded-xl bg-gray-50 dark:bg-white/5"},e('i',{className:"fas "+s3.i+" "+s3.c+" text-lg mb-2"}),e('div',{className:"text-xl font-bold"},s3.v),e('div',{className:"text-xs text-gray-400 font-medium"},s3.l));}))
+      e('div',{className:"grid grid-cols-2 sm:grid-cols-4 gap-4"},[{l:'Documents',v:ctx.docs.length,i:'fa-file-alt',c:'text-primary-500'},{l:'Flashcards',v:ctx.cards.length,i:'fa-clone',c:'text-violet-500'},{l:'Quizzes',v:ctx.quizzes.length,i:'fa-question-circle',c:'text-amber-500'},{l:'Hours',v:SD.hours,i:'fa-clock',c:'text-emerald-500'}].map(function(s3,i){return e('div',{key:i,className:"text-center p-3 rounded-xl bg-gray-50 dark:bg-white/5"},e('i',{className:"fas "+s3.i+" "+s3.c+" text-lg mb-2"}),e('div',{className:"text-xl font-bold"},s3.v),e('div',{className:"text-xs text-gray-400 font-medium"},s3.l));}))
     ),
     e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700/40 shadow-sm space-y-3"},
       e('h3',{className:"font-semibold text-sm mb-2"},"Account"),
@@ -696,7 +676,7 @@ function ProfilePage(){
   );
 }
 
-// ── App ──
+// App
 function App(){
   var stored=null;
   try{var s2=localStorage.getItem('sm_u');if(s2)stored=JSON.parse(s2);}catch(ex){}
@@ -737,7 +717,7 @@ function App(){
   );
 }
 
-// ── Mount ──
+// Mount
 try{
   ReactDOM.createRoot(document.getElementById('root')).render(e(App,null));
 }catch(ex){
