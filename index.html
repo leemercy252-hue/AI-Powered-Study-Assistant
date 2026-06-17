@@ -90,7 +90,7 @@ function AuthPage(){
     if(mode==='signup'&&form.pw!==form.pw2){setErr('Passwords do not match');return;}
     if(!form.email||!form.pw){setErr('Please fill in all fields');return;}
     setLoading(true);
-    setTimeout(function(){ctx.setUser({name:form.name||form.email.split('@')[0],email:form.email});setLoading(false);},1200);
+    setTimeout(function(){ctx.setUser({name:'',email:form.email});setLoading(false);},1200);
   }
 
   var feats=[{i:'fa-compress-alt',t:'Instant note summarization'},{i:'fa-clone',t:'Auto-generated flashcards'},{i:'fa-question-circle',t:'AI-powered quizzes'},{i:'fa-comments',t:'Chat with your documents'}];
@@ -160,8 +160,8 @@ function AuthPage(){
         e('span',{className:"relative bg-surface-50 dark:bg-surface-900 px-3 text-xs text-gray-400"},"or continue with")
       ),
       e('div',{className:"grid grid-cols-2 gap-3"},
-        e('button',{onClick:function(){setLoading(true);setTimeout(function(){ctx.setUser({name:'Student',email:'student@google.com'});},800);},className:"flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/5 transition"},e('i',{className:"fab fa-google text-red-500"}),"Google"),
-        e('button',{onClick:function(){setLoading(true);setTimeout(function(){ctx.setUser({name:'Student',email:'student@uni.edu'});},800);},className:"flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/5 transition"},e('i',{className:"fas fa-university text-primary-600"}),"University")
+        e('button',{onClick:function(){setLoading(true);setTimeout(function(){ctx.setUser({name:'',email:'student@google.com'});},800);},className:"flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/5 transition"},e('i',{className:"fab fa-google text-red-500"}),"Google"),
+        e('button',{onClick:function(){setLoading(true);setTimeout(function(){ctx.setUser({name:'',email:'student@uni.edu'});},800);},className:"flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/5 transition"},e('i',{className:"fas fa-university text-primary-600"}),"University")
       )
     ):null
   );
