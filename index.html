@@ -646,7 +646,7 @@ function ProgressPage(){
 function ProfilePage(){
   var ctx=useContext(Ctx);
   var ed=useState(false),editing=ed[0],setEditing=ed[1];
-  var fm=useState({name:ctx.user?ctx.user.name:'',email:ctx.user?ctx.user.email:'',uni:'Stanford University',major:'Computer Science',year:'Junior',bio:'Passionate about AI-powered study.'}),form=fm[0],setForm=fm[1];
+  var fm=useState({name: '', email: ctx.user ? ctx.user.email : ''}),form=fm[0],setForm=fm[1];
   function uf(k,v){var n=Object.assign({},form);n[k]=v;setForm(n);}
   function save(){ctx.setUser(Object.assign({},ctx.user,{name:form.name,email:form.email}));setEditing(false);ctx.addToast('Profile updated!','success');}
 
