@@ -1,0 +1,261 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>StudyMind â€” App</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;}#root{min-height:100vh;background:linear-gradient(180deg,#f8fafc,white);} .nav-btn{padding:10px 14px;border-radius:10px;} .active{background:#eef2ff;color:#312e81}</style>
+</head>
+<body>
+  <div id="root" class="max-w-6xl mx-auto p-6">
+    <header class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white"><i class="fas fa-brain"></i></div>
+        <h1 class="text-2xl font-bold">StudyMind</h1>
+      </div>
+      <nav class="flex gap-2">
+        <button id="navDash" class="nav-btn active">Dashboard</button>
+        <button id="navPricing" class="nav-btn">Pricing</button>
+        <button id="navProfile" class="nav-btn">Profile</button>
+        <button id="navAdmin" class="nav-btn">Admin</button>
+      </nav>
+    </header>
+
+    <main>
+      <section id="dashboard" class="mb-6">
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h2 class="text-xl font-semibold">Dashboard</h2>
+          <p class="text-gray-600 mt-2">Main app content goes here. This is a lightweight placeholder while the full app is rebuilt.</p>
+        </div>
+      </section>
+
+      <section id="pricing" class="hidden mb-6">
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h2 class="text-xl font-semibold">Pro â€” Monthly</h2>
+          <p class="text-gray-500 mt-1">Full access to StudyMind features.</p>
+          <div class="mt-4 flex items-baseline gap-3">
+            <div class="text-4xl font-extrabold">â‚¬4.59</div>
+            <div class="text-sm text-gray-500">/month</div>
+          </div>
+
+          <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input id="paypalClientId" class="p-3 border rounded" placeholder="PayPal Client ID (optional)" />
+            <input id="email" class="p-3 border rounded" placeholder="Email (for Flutterwave)" />
+          </div>
+
+          <div class="mt-4 flex gap-3">
+            <button id="loadPaypal" class="px-4 py-2 bg-blue-600 text-white rounded">Load PayPal Button</button>
+            <button id="fwBtn" class="px-4 py-2 bg-emerald-600 text-white rounded">Pay with Flutterwave</button>
+          </div>
+
+          <div id="paypal-area" class="mt-4"></div>
+          <div id="status" class="mt-4 text-sm text-gray-600"></div>
+        </div>
+      </section>
+
+      <section id="profile" class="hidden mb-6">
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h2 class="text-xl font-semibold">Profile</h2>
+          <p class="text-gray-600 mt-2">Name and email are blank until you sign in and fill them.</p>
+        </div>
+      </section>
+
+      <section id="admin" class="hidden mb-6">
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h2 class="text-xl font-semibold">Admin â€” Subscriptions</h2>
+          <p class="text-gray-600 mt-2">Enter your admin token to view recent subscriptions.</p>
+          <div class="mt-4 flex gap-3">
+            <input id="adminPassword" type="password" class="p-3 border rounded" placeholder="Admin password" />
+            <button id="adminLogin" class="px-4 py-2 bg-gray-800 text-white rounded">Login</button>
+            <button id="adminLogout" class="px-4 py-2 bg-red-600 text-white rounded">Logout</button>
+          </div>
+          <div class="mt-4 flex items-center gap-3">
+            <input id="adminFilter" class="p-2 border rounded text-sm" placeholder="Filter by email or provider" />
+            <button id="exportCsv" class="px-3 py-1 bg-blue-600 text-white rounded text-sm">Export CSV</button>
+            <div class="ml-auto text-sm text-gray-500" id="adminPagerInfo"></div>
+          </div>
+          <div id="adminArea" class="mt-4 overflow-x-auto"></div>
+          <div class="mt-2 flex gap-2">
+            <button id="prevPage" class="px-3 py-1 bg-gray-200 rounded">Prev</button>
+            <button id="nextPage" class="px-3 py-1 bg-gray-200 rounded">Next</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="text-xs text-gray-500 mt-6">Run the server and set env vars: PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, PAYPAL_ENV, FLW_SECRET_KEY.</footer>
+  </div>
+
+  <script>
+  // Simple SPA navigation and payment hooks (wrapped to surface errors and provide fallback)
+  (function(){ try{
+    function $(id){return document.getElementById(id);} 
+    const navDash = $('navDash'), navPricing = $('navPricing'), navProfile = $('navProfile'), navAdmin = $('navAdmin');
+    const dashboard = $('dashboard'), pricing = $('pricing'), profile = $('profile'), admin = $('admin');
+    function show(section){ dashboard.classList.add('hidden'); pricing.classList.add('hidden'); profile.classList.add('hidden'); admin.classList.add('hidden'); section.classList.remove('hidden'); }
+    function setActive(btn){ [navDash,navPricing,navProfile,navAdmin].forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+    navDash.addEventListener('click', function(){ show(dashboard); setActive(navDash); });
+    navPricing.addEventListener('click', function(){ show(pricing); setActive(navPricing); });
+    navProfile.addEventListener('click', function(){ show(profile); setActive(navProfile); });
+    navAdmin.addEventListener('click', function(){ show(admin); setActive(navAdmin); });
+
+    // Default view
+    show(dashboard);
+
+    // Admin UI: JWT login, filtering, CSV, pagination
+    const adminPasswordInput = $('adminPassword');
+    const adminLogin = $('adminLogin');
+    const adminLogout = $('adminLogout');
+    const adminFilter = $('adminFilter');
+    const exportCsv = $('exportCsv');
+    const prevPage = $('prevPage');
+    const nextPage = $('nextPage');
+    const adminPagerInfo = $('adminPagerInfo');
+    const adminAreaEl = $('adminArea');
+
+    let allSubs = [];
+    let filteredSubs = [];
+    let currentPage = 0;
+    const pageSize = 20;
+
+    function setAdminJwt(token){ if(token) sessionStorage.setItem('admin_jwt', token); else sessionStorage.removeItem('admin_jwt'); }
+    function getAdminJwt(){ return sessionStorage.getItem('admin_jwt') || '' }
+
+    function renderPage(){
+      const start = currentPage * pageSize;
+      const page = filteredSubs.slice(start, start + pageSize);
+      adminPagerInfo.textContent = `Showing ${start+1}-${Math.min(start+page.length, filteredSubs.length)} of ${filteredSubs.length}`;
+      if(page.length===0){ adminAreaEl.innerHTML = '<div class="text-sm text-gray-500">No subscriptions</div>'; return; }
+      const rows = page.map(r=>`<tr class="border-b"><td class="px-2 py-1">${r.id}</td><td class="px-2 py-1">${r.email}</td><td class="px-2 py-1">${r.provider}</td><td class="px-2 py-1">${r.plan}</td><td class="px-2 py-1">${r.status}</td><td class="px-2 py-1">${new Date(r.created_at).toLocaleString()}</td></tr>`).join('');
+      adminAreaEl.innerHTML = `<table class="min-w-full text-sm"><thead><tr class="text-left"><th class="px-2 py-1">ID</th><th class="px-2 py-1">Email</th><th class="px-2 py-1">Provider</th><th class="px-2 py-1">Plan</th><th class="px-2 py-1">Status</th><th class="px-2 py-1">Created</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+
+    function applyFilter(){
+      const q = (adminFilter.value||'').toLowerCase().trim();
+      if(!q) filteredSubs = allSubs.slice();
+      else filteredSubs = allSubs.filter(s => (s.email||'').toLowerCase().includes(q) || (s.provider||'').toLowerCase().includes(q) || (s.id||'').toLowerCase().includes(q));
+      currentPage = 0; renderPage();
+    }
+
+    async function fetchSubscriptions(){
+      try{
+        const token = getAdminJwt();
+        const hdrs = {'Content-Type':'application/json'};
+        if(token) hdrs['Authorization'] = 'Bearer '+token;
+        const r = await fetch('/admin/subscriptions', { headers: hdrs });
+        if(r.status===401 || r.status===403){ adminAreaEl.innerHTML = '<div class="text-sm text-red-600">Unauthorized. Log in again.</div>'; return; }
+        const j = await r.json();
+        allSubs = j.subscriptions || [];
+        applyFilter();
+      }catch(e){ adminAreaEl.innerHTML = '<div class="text-sm text-red-600">Error loading subscriptions</div>'; }
+    }
+
+    adminLogin.addEventListener('click', async function(){
+      const pass = adminPasswordInput.value || '';
+      if(!pass){ adminAreaEl.innerHTML = '<div class="text-sm text-red-600">Enter password</div>'; return; }
+      try{
+        const r = await fetch('/admin/login', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ password: pass }) });
+        if(r.status!==200){ adminAreaEl.innerHTML = '<div class="text-sm text-red-600">Login failed</div>'; return; }
+        const j = await r.json();
+        setAdminJwt(j.token);
+        adminPasswordInput.value = '';
+        await fetchSubscriptions();
+      }catch(e){ adminAreaEl.innerHTML = '<div class="text-sm text-red-600">Login error</div>'; }
+    });
+
+    adminLogout.addEventListener('click', function(){ setAdminJwt(null); adminAreaEl.innerHTML = '<div class="text-sm text-gray-500">Logged out</div>'; allSubs = []; filteredSubs = []; adminPagerInfo.textContent=''; });
+
+    adminFilter.addEventListener('input', function(){ applyFilter(); });
+
+    prevPage.addEventListener('click', function(){ if(currentPage>0){ currentPage--; renderPage(); } });
+    nextPage.addEventListener('click', function(){ if((currentPage+1)*pageSize < filteredSubs.length){ currentPage++; renderPage(); } });
+
+    exportCsv.addEventListener('click', function(){
+      const rows = filteredSubs.map(r=>[r.id, r.email, r.provider, r.plan, r.status, new Date(r.created_at).toISOString()].join(','));
+      const csv = ['id,email,provider,plan,status,created_at', ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'subscriptions.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+
+    // Auto-login if JWT present
+    if(getAdminJwt()) fetchSubscriptions();
+
+    // Merchant config: fetch PayPal client ID from server for frontend
+    fetch('/merchant-config').then(r=>r.json()).then(cfg=>{ if(cfg && cfg.paypalClientId){ const el = $('paypalClientId'); if(el && !el.value) el.value = cfg.paypalClientId; } }).catch(()=>{});
+
+    // Payments
+    const payAmount = 4.59; // EUR
+    const loadBtn = $('loadPaypal');
+    const fwBtn = $('fwBtn');
+    const status = $('status');
+    const paypalArea = $('paypal-area');
+
+    function setStatus(msg,err){ status.textContent = msg || ''; status.style.color = err ? 'red' : ''; }
+
+    loadBtn.addEventListener('click', async function(){
+      let clientId = $('paypalClientId').value.trim();
+      if(!clientId){
+        try{
+          const r = await fetch('/merchant-config');
+          const cfg = await r.json();
+          clientId = cfg.paypalClientId || '';
+          if(clientId) $('paypalClientId').value = clientId;
+        }catch(e){ /* ignore */ }
+      }
+      if(!clientId){ setStatus('No PayPal Client ID available', true); return; }
+      if(window.paypal){ renderButtons(); return; }
+      const s = document.createElement('script');
+      s.src = 'https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(clientId)+'&currency=EUR';
+      s.onload = function(){ setStatus('PayPal SDK loaded'); renderButtons(); };
+      s.onerror = function(){ setStatus('Failed to load PayPal SDK', true); };
+      document.body.appendChild(s);
+    });
+
+    function renderButtons(){
+      paypalArea.innerHTML = '';
+      const cont = document.createElement('div'); cont.id = 'paypal-buttons'; paypalArea.appendChild(cont);
+      try{
+        window.paypal.Buttons({
+          createOrder: function(data, actions){
+            return fetch('/create-order', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({amount: payAmount, currency:'EUR'})})
+              .then(r=>r.json()).then(j=>j.id)
+              .catch(()=> actions.order.create({purchase_units:[{amount:{value:payAmount.toFixed(2),currency_code:'EUR'}}]}));
+          },
+          onApprove: function(data, actions){
+            return fetch('/capture-order', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({orderID:data.orderID})})
+              .then(r=>r.json()).then(j=>{ setStatus('Payment successful â€” thank you!'); })
+              .catch(()=> actions.order.capture().then(function(details){ setStatus('Payment (client) successful â€” thank you!'); }));
+          },
+          onError: function(err){ setStatus('Payment failed', true); }
+        }).render('#paypal-buttons');
+      }catch(e){ setStatus('Error rendering PayPal buttons: '+e.message, true); }
+    }
+
+    fwBtn.addEventListener('click', async function(){
+      try{
+        const email = $('email').value || 'guest@example.com';
+        const tx_ref = 'sm_'+Date.now();
+        const resp = await fetch('/flutterwave/create-payment', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({amount: payAmount, currency:'EUR', tx_ref: tx_ref, redirectUrl: window.location.origin + '/flutterwave/verify', email: email})});
+        const j = await resp.json();
+        if(j && j.data && j.data.link){ window.location = j.data.link; } else { setStatus('Failed to start Flutterwave payment', true); console.error(j); }
+      }catch(e){ setStatus('Flutterwave request failed: '+e.message, true); }
+    });
+
+    }catch(err){
+      console.error('Frontend initialization error:', err);
+      try{
+        // hide all sections and show dashboard as a safe fallback
+        document.querySelectorAll('main section').forEach(s=>s.classList.add('hidden'));
+        const d = document.getElementById('dashboard'); if(d) d.classList.remove('hidden');
+        // mark dashboard nav active
+        document.querySelectorAll('nav .nav-btn').forEach(b=>b.classList.remove('active'));
+        const nd = document.getElementById('navDash'); if(nd) nd.classList.add('active');
+      }catch(e2){ console.error('Fallback UI restore failed', e2); }
+    }
+    })();
+  </script>
+</body>
+</html>

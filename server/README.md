@@ -8,6 +8,12 @@ Environment variables (set these for production):
 - PAYPAL_CLIENT_SECRET - your PayPal REST app secret (live)
 - PAYPAL_ENV - 'live' or 'sandbox'
 
+Additional environment variables for admin and merchant config:
+
+- ADMIN_PASSWORD - password for admin login (used by `/admin/login` to mint JWT)
+- ADMIN_JWT_SECRET - secret used to sign admin JWTs
+- FLW_PUBLIC_KEY - optional Flutterwave public key exposed to frontend via `/merchant-config`
+
 Install and run:
 
 ```bash
@@ -21,6 +27,12 @@ Endpoints:
 - POST /create-order { amount: number, currency: 'EUR'|'USD' } -> { id }
 - POST /capture-order { orderID: string } -> capture result
 - POST /webhook -> receive PayPal webhook events (verify signature before trusting)
+
+Additional endpoints:
+
+- GET /merchant-config -> returns non-secret merchant config for the frontend (e.g. `paypalClientId`)
+- POST /admin/login { password } -> returns `{ token }` JWT when `ADMIN_PASSWORD` is set
+- GET /admin/subscriptions -> protected by JWT; pass `Authorization: Bearer <token>`
 
 Flutterwave
 --------
@@ -48,3 +60,6 @@ Notes:
 - Use this server behind HTTPS in production.
 - Implement webhook signature verification: https://developer.paypal.com/docs/api/webhooks/v1/#verify-webhook-signature
 - For subscriptions use Billing API instead of simple orders.
+
+Install note:
+- After pulling changes run `npm install` inside `server` to add the `jsonwebtoken` dependency.
