@@ -218,7 +218,7 @@ function TopBar(props){
     ),
     e('div',{className:"flex items-center gap-2"},
       e('button',{onClick:function(){ctx.setDark(!ctx.dark);},className:"w-9 h-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 flex items-center justify-center text-gray-500 transition","aria-label":"Theme"},e('i',{className:"fas "+(ctx.dark?"fa-sun text-amber-400":"fa-moon")}),null),
-      e('button',{className:"w-9 h-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 flex items-center justify-center text-gray-500 transition relative"},e('i',{className:"fas fa-bell text-sm"}),e('span',{className:"absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"})),
+      e('button',{className:"w-9 h-9 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 flex items-center justify-center text-gray-500 transition relative"},e('i',{className:"fas fa-bell text-sm"})),
       e('div',{className:"w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold ml-1 shadow-md shadow-primary-500/20"},ctx.user?ctx.user.name.charAt(0):'S')
     )
   );
@@ -646,7 +646,7 @@ function ProgressPage(){
 function ProfilePage(){
   var ctx=useContext(Ctx);
   var ed=useState(false),editing=ed[0],setEditing=ed[1];
-  var fm=useState({name: '', email: ctx.user ? ctx.user.email : ''}),form=fm[0],setForm=fm[1];
+  var fm=useState({name:'',email:'',uni:'',major:'',year:'',bio:''}),form=fm[0],setForm=fm[1];
   function uf(k,v){var n=Object.assign({},form);n[k]=v;setForm(n);}
   function save(){ctx.setUser(Object.assign({},ctx.user,{name:form.name,email:form.email}));setEditing(false);ctx.addToast('Profile updated!','success');}
 
