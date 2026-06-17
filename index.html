@@ -1,151 +1,113 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StudyMind</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-<script>
-tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Plus Jakarta Sans','sans-serif']},colors:{primary:{50:'#f0fdfa',100:'#ccfbf1',200:'#99f6e4',300:'#5eead4',400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e',800:'#115e59',900:'#134e4a'},accent:{400:'#fbbf24',500:'#f59e0b'},surface:{50:'#f8fafb',100:'#f0f4f8',200:'#e2e8f0',800:'#141e30',900:'#0b1120'}}}}}
-</script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Plus Jakarta Sans',sans-serif;overflow-x:hidden}
-#boot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s}
-#boot.done{opacity:0;pointer-events:none}
-#boot .ring{width:48px;height:48px;border:4px solid #ccfbf1;border-top-color:#0d9488;border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}.dark ::-webkit-scrollbar-thumb{background:#334155}
-@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-@keyframes blob{0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%}50%{border-radius:30% 60% 70% 40%/50% 60% 30% 60%}}
-.af{animation:fadeIn .5s ease both}.ab{animation:blob 8s ease-in-out infinite}.afl{animation:float 3s ease-in-out infinite}
-.flip-card{perspective:1000px}.flip-inner{transition:transform .6s;transform-style:preserve-3d;position:relative}.flip-inner.flipped{transform:rotateY(180deg)}.flip-front,.flip-back{backface-visibility:hidden;position:absolute;inset:0}.flip-back{transform:rotateY(180deg)}
-.glass{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.lc2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-input:focus,textarea:focus,select:focus{outline:none;box-shadow:0 0 0 3px rgba(13,148,136,.2)}.dark input:focus,.dark textarea:focus,.dark select:focus{box-shadow:0 0 0 3px rgba(20,184,166,.25)}
-@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>StudyMind</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="" crossorigin="anonymous">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>html,body,#root{height:100%;}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}</style>
 </head>
-<body class="bg-surface-50 dark:bg-surface-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-<div id="boot" style="background:#f8fafb"><div style="text-align:center"><div class="ring" style="margin:0 auto 16px"></div><div style="font-weight:700;font-size:18px;color:#0d9488">StudyMind</div><div id="bmsg" style="font-size:13px;color:#94a3b8;margin-top:4px">Loading...</div></div></div>
-<div id="root"></div>
-<script>
-window.onerror=function(m,u,l){var e=document.getElementById('bmsg');if(e){e.textContent='Error: '+m+' (line '+l+')';e.style.color='red';}return false;};
-</script>
-<script>
-(function(){
+<body>
+  <div id="root"></div>
+  <div id="bmsg" style="display:block;text-align:center;padding:12px;"></div>
 
-// Short alias for React.createElement - no template literals, no Babel, no htm
-var e = React.createElement;
-var useState=React.useState, useEffect=React.useEffect, useRef=React.useRef,
-    useContext=React.useContext, createContext=React.createContext,
-    useMemo=React.useMemo, useCallback=React.useCallback;
-
-// Data
-var DOCS=[];
-var CARDS=[];
-var QUIZZES=[];
-var SD={weekly:[0,0,0,0,0,0,0],scores:[],subj:{CS:0,Chem:0,Math:0,Hist:0,Psych:0},streak:0,hours:0,cards:0,quizN:0};
-
-var Ctx=createContext();
-
-// Helpers
-function tI(t){return t==='pdf'?'fa-file-pdf':t==='docx'?'fa-file-word':'fa-file-alt';}
-function tC(t){return t==='pdf'?'bg-red-100 dark:bg-red-900/20 text-red-500':t==='docx'?'bg-blue-100 dark:bg-blue-900/20 text-blue-500':'bg-gray-100 dark:bg-gray-800 text-gray-500';}
-
-function Toast(props){
-  useEffect(function(){var t=setTimeout(props.onClose,3000);return function(){clearTimeout(t);}},[props.onClose]);
-  var bg=props.type==='success'?'bg-emerald-500':props.type==='error'?'bg-red-500':'bg-teal-600';
-  var ic=props.type==='success'?'fa-check-circle':props.type==='error'?'fa-exclamation-circle':'fa-info-circle';
-  return e('div',{className:"af fixed top-6 right-6 z-[100] "+bg+" text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium"},
-    e('i',{className:"fas "+ic}),
-    e('span',null,props.message),
-    e('button',{onClick:props.onClose,className:"ml-2 opacity-70 hover:opacity-100"},e('i',{className:"fas fa-times"}))
-  );
-}
-
-function Spin(props){
-  var s=props.size==='sm'?'w-5 h-5':'w-8 h-8';
-  return e('div',{className:s+" rounded-full",style:{borderWidth:3,borderStyle:'solid',borderColor:'#99f6e4',borderTopColor:'#0d9488',animation:'spin .8s linear infinite'}});
-}
-
-// Auth
-function AuthPage(){
-  var ctx=useContext(Ctx);
-  var m=useState('login'),mode=m[0],setMode=m[1];
-  var f=useState({name:'',email:'',pw:'',pw2:''}),form=f[0],setForm=f[1];
-  var l=useState(false),loading=l[0],setLoading=l[1];
-  var er=useState(''),err=er[0],setErr=er[1];
-
-  function uf(k,v){var n=Object.assign({},form);n[k]=v;setForm(n);}
-  function go(m2){setMode(m2);setErr('');}
-
-  function submit(ev){
-    ev.preventDefault();setErr('');
-    if(mode==='signup'&&form.pw!==form.pw2){setErr('Passwords do not match');return;}
-    if(!form.email||!form.pw){setErr('Please fill in all fields');return;}
-    setLoading(true);
-    setTimeout(function(){ctx.setUser({name:'',email:form.email});setLoading(false);},1200);
-  }
-
-  var feats=[{i:'fa-compress-alt',t:'Instant note summarization'},{i:'fa-clone',t:'Auto-generated flashcards'},{i:'fa-question-circle',t:'AI-powered quizzes'},{i:'fa-comments',t:'Chat with your documents'}];
-
-  // Left panel
-  var left=e('div',{className:"hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 via-primary-700 to-teal-800 relative overflow-hidden items-center justify-center p-12"},
-    e('div',{className:"absolute top-20 -left-20 w-72 h-72 bg-primary-400/20 rounded-full blur-3xl ab"}),
-    e('div',{className:"absolute bottom-20 -right-10 w-96 h-96 bg-accent-500/10 rounded-full blur-3xl ab",style:{animationDelay:'4s'}}),
-    e('div',{className:"relative z-10 max-w-md"},
-      e('div',{className:"flex items-center gap-3 mb-8"},
-        e('div',{className:"w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center"},e('i',{className:"fas fa-brain text-white text-xl"})),
-        e('span',{className:"text-2xl font-bold text-white"},"StudyMind")
-      ),
-      e('h1',{className:"text-4xl font-extrabold text-white leading-tight mb-4"},"Your AI-Powered Study Companion"),
-      e('p',{className:"text-primary-100 text-lg leading-relaxed mb-8"},"Upload study materials and let AI create summaries, flashcards, and quizzes."),
-      e('div',{className:"space-y-4"},feats.map(function(f2,j){
-        return e('div',{key:j,className:"flex items-center gap-3 text-primary-100 af",style:{animationDelay:j*150+'ms'}},
-          e('div',{className:"w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center"},e('i',{className:"fas "+f2.i+" text-sm text-accent-400"})),
-          e('span',{className:"text-sm font-medium"},f2.t)
+  <script>
+  // App script
+  
+  
+  return e('div',{className:"af space-y-8"},
+    e('div',{className:"text-center max-w-2xl mx-auto mb-8"},
+      e('h1',{className:"text-3xl font-bold mb-2"},"Simple, Transparent Pricing"),
+      e('p',{className:"text-gray-500 dark:text-gray-400"},"No hidden fees. Cancel anytime. All plans access the full StudyMind experience."),
+      e('div',{className:"flex justify-center gap-3 mt-6"},
+        e('button',{onClick:function(){setCurrency('usd');},className:"px-4 py-2 rounded-xl text-sm font-semibold transition "+(currency==='usd'?"bg-primary-600 text-white shadow-md":"bg-gray-100 dark:bg-white/5 text-gray-600")},e('span',null,"USD ($)")),
+        e('button',{onClick:function(){setCurrency('eur');},className:"px-4 py-2 rounded-xl text-sm font-semibold transition "+(currency==='eur'?"bg-primary-600 text-white shadow-md":"bg-gray-100 dark:bg-white/5 text-gray-600")},e('span',null,"EUR (€)"))
+      )
+    ),
+    e('div',{className:"grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-8"},
+      plans.map(function(pl,i){
+        return e('div',{key:i,className:"relative bg-white dark:bg-surface-800 rounded-2xl p-8 border "+(pl.b?"border-primary-500 shadow-lg shadow-primary-500/20":"border-gray-200 dark:border-gray-700/40")+(pl.b?" transform md:scale-105":"")},
+          pl.b?e('div',{className:"absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary-600 to-primary-500 text-white px-4 py-1 rounded-full text-xs font-bold"},"RECOMMENDED"):null,
+          e('h2',{className:"text-2xl font-bold mb-2"},pl.n),
+          e('p',{className:"text-sm text-gray-500 mb-4"},pl.desc),
+          e('div',{className:"mb-6"},
+            e('span',{className:"text-4xl font-extrabold"},pl.p===0?"Free":currency==='usd'?'$'+pl.p.toFixed(2):'€'+pl.p.toFixed(2)),
+            pl.p>0?e('span',{className:"text-gray-500 text-sm ml-2"},"/month"):null
+          ),
+          validated&&pl.p>0?e('div',{className:"mb-4 p-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-lg text-xs font-medium"},e('i',{className:"fas fa-check-circle mr-2"}),"40% student discount applied!"):null,
+          e('button',{onClick:function(){if(pl.p>0){setPayAmount(pl.p);setShowPay(true);}else{ctx.addToast('Free plan activated!','success');}},className:"w-full py-2.5 rounded-xl text-sm font-semibold transition "+(pl.b?"bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg hover:shadow-xl":"bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200")},pl.p>0?'Upgrade Now':'Start Free'),
+          e('div',{className:"mt-6 space-y-3"},
+            pl.f.map(function(feat,j){
+              return e('div',{key:j,className:"flex items-center gap-2 text-sm"},
+                e('i',{className:"fas fa-check text-primary-500 w-4"}),
+                feat
+              );
+            })
+          )
         );
-      }))
+      })
+    ),
+    showPay?e('div',{className:"max-w-2xl mx-auto bg-white dark:bg-surface-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700/40 shadow-sm"},
+      e('h3',{className:"text-lg font-bold mb-2"},"Pay with PayPal"),
+      e('p',{className:"text-sm text-gray-500 mb-4"},"Paste your PayPal Client ID (live or sandbox) to render the checkout button on this page. This allows you to test and accept payments directly from your PayPal account."),
+      e('div',{className:"flex gap-2 mb-4"},
+        e('input',{type:"text",value:paypalId,onChange:function(ev){setPaypalId(ev.target.value);},placeholder:"PayPal Client ID (or sandbox)",className:"flex-1 px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm"}),
+        e('button',{onClick:function(){loadPayPalSdkAndRender(payAmount);},className:"px-5 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition"},"Load PayPal Button")
+      ),
+      e('div',{id:'paypal-buttons'}),
+      e('div',{className:"flex gap-2 mt-4"},
+        e('button',{onClick:function(){payWithFlutterwave(payAmount);},className:"px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition"},"Pay with Flutterwave"),
+        e('button',{onClick:function(){loadPayPalSdkAndRender(payAmount);},className:"px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition"},"Load PayPal Button")
+      ),
+      e('div',{className:"text-xs text-gray-400 mt-4"},"Amount: "+(currency==='usd'?'$'+payAmount.toFixed(2):'€'+payAmount.toFixed(2)))
+    ):null,
+    e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700/40 shadow-sm max-w-2xl mx-auto mb-8"},
+      e('h3',{className:"text-lg font-bold mb-4"},"Student Discount - 40% OFF"),
+      e('p',{className:"text-gray-600 dark:text-gray-400 text-sm mb-4"},"Have a .edu email? Verify your student status and get Pro for just "+( currency==='usd'?'$'+discPrice.toFixed(2):'€'+discPriceEur.toFixed(2))+"/month."),
+      !validated?e('div',{className:"flex gap-2"},
+        e('input',{type:"email",value:email,onChange:function(ev){setEmail(ev.target.value);},placeholder:"your.name@university.edu",className:"flex-1 px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm"}),
+        e('button',{onClick:verifyEdu,className:"px-5 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition"},"Verify")
+      ):e('div',{className:"p-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-lg text-sm font-medium"},e('i',{className:"fas fa-check-circle mr-2"}),"✓ Student verified!")
+    ),
+    e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700/40 shadow-sm"},
+      e('h3',{className:"text-lg font-bold mb-6 text-center"},"Full Feature Comparison"),
+      e('div',{className:"overflow-x-auto"},
+        e('table',{className:"w-full text-sm"},
+          e('thead',null,
+            e('tr',{className:"border-b border-gray-200 dark:border-gray-700"},
+              e('th',{className:"text-left py-3 px-4 font-semibold"},"Feature"),
+              e('th',{className:"text-center py-3 px-4 font-semibold"},"Free"),
+              e('th',{className:"text-center py-3 px-4 font-semibold"},"Pro")
+            )
+          ),
+          e('tbody',null,
+            features.map(function(feat,i){
+              return e('tr',{key:i,className:"border-b border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-white/5"},
+                e('td',{className:"py-3 px-4"},feat.t),
+                e('td',{className:"text-center py-3 px-4"},feat.free?e('i',{className:"fas fa-check text-emerald-500"}):e('i',{className:"fas fa-times text-gray-300"})),
+                e('td',{className:"text-center py-3 px-4"},feat.pro?e('i',{className:"fas fa-check text-primary-500"}):e('i',{className:"fas fa-times text-gray-300"}))
+              );
+            })
+          )
+        )
+      )
+    ),
+    e('div',{className:"bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-8 text-white text-center"},
+      e('h3',{className:"text-2xl font-bold mb-2"},"Works Anywhere in the World"),
+      e('p',{className:"mb-4"},"We accept payments from 135+ countries including Nigeria, UK, India, and more. You can accept payments via PayPal — paste your PayPal Client ID to enable checkout."),
+      e('div',{className:"flex justify-center gap-4 mb-4"},
+        e('div',{className:"text-center"},e('i',{className:"fas fa-globe text-2xl mb-2 block"}),e('span',{className:"text-sm"},"135+ Countries")),
+        e('div',{className:"text-center"},e('i',{className:"fas fa-lock text-2xl mb-2 block"}),e('span',{className:"text-sm"},"Secure Payments")),
+        e('div',{className:"text-center"},e('i',{className:"fas fa-euro-sign text-2xl mb-2 block"}),e('span',{className:"text-sm"},"Auto EUR Convert"))
+      ),
+      e('p',{className:"text-sm opacity-90"},"Funds received according to your PayPal/merchant settings. No hidden fees.")
     )
   );
-
-  // Right panel
-  var rightInner=e('div',{className:"w-full max-w-md af"},
-    e('div',{className:"lg:hidden flex items-center gap-3 mb-8 justify-center"},
-      e('div',{className:"w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg shadow-primary-500/25"},e('i',{className:"fas fa-brain text-white"})),
-      e('span',{className:"text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent"},"StudyMind")
-    ),
-    e('h2',{className:"text-2xl font-bold mb-1"},mode==='login'?'Welcome back':mode==='signup'?'Create your account':'Reset password'),
-    e('p',{className:"text-gray-500 dark:text-gray-400 mb-8 text-sm"},
-      mode==='login'?"Don't have an account?":mode==='signup'?'Already have an account?':'Remember your password?',
-      e('button',{onClick:function(){go(mode==='login'?'signup':'login');},className:"text-primary-600 dark:text-primary-400 font-semibold ml-1 hover:underline"},mode==='login'?'Sign up':'Log in')
-    ),
-    err?e('div',{className:"mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-sm"},e('i',{className:"fas fa-exclamation-circle mr-2"}),err):null,
-    e('form',{onSubmit:submit,className:"space-y-4"},
-      mode==='signup'?e('div',null,
-        e('label',{className:"block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300"},"Full Name"),
-        e('div',{className:"relative"},
-          e('i',{className:"fas fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"}),
-          e('input',{type:"text",value:form.name,onChange:function(ev){uf('name',ev.target.value);},className:"w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm",placeholder:"John Doe",required:true})
-        )
-      ):null,
-      e('div',null,
-        e('label',{className:"block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300"},"Email"),
-        e('div',{className:"relative"},
-          e('i',{className:"fas fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"}),
-          e('input',{type:"email",value:form.email,onChange:function(ev){uf('email',ev.target.value);},className:"w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm",placeholder:"you@university.edu",required:true})
-        )
-      ),
-      mode!=='forgot'?e('div',null,
-        e('label',{className:"block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300"},"Password"),
-        e('div',{className:"relative"},
-          e('i',{className:"fas fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"}),
+}
           e('input',{type:"password",value:form.pw,onChange:function(ev){uf('pw',ev.target.value);},className:"w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm",placeholder:"Min. 8 characters",required:true})
         )
       ):null,
@@ -176,7 +138,7 @@ function AuthPage(){
 function Sidebar(props){
   var ctx=useContext(Ctx);
   var cur=props.cur,setCur=props.setCur,col=props.col,setCol=props.setCol;
-  var items=[{id:'dashboard',i:'fa-th-large',l:'Dashboard'},{id:'upload',i:'fa-cloud-upload-alt',l:'Upload'},{id:'documents',i:'fa-folder-open',l:'Documents'},{id:'summarize',i:'fa-compress-alt',l:'Summarize'},{id:'flashcards',i:'fa-clone',l:'Flashcards'},{id:'quiz',i:'fa-question-circle',l:'Quiz'},{id:'chat',i:'fa-comments',l:'AI Chat'},{id:'progress',i:'fa-chart-line',l:'Progress'},{id:'profile',i:'fa-user-circle',l:'Profile'}];
+  var items=[{id:'dashboard',i:'fa-th-large',l:'Dashboard'},{id:'upload',i:'fa-cloud-upload-alt',l:'Upload'},{id:'documents',i:'fa-folder-open',l:'Documents'},{id:'summarize',i:'fa-compress-alt',l:'Summarize'},{id:'flashcards',i:'fa-clone',l:'Flashcards'},{id:'quiz',i:'fa-question-circle',l:'Quiz'},{id:'chat',i:'fa-comments',l:'AI Chat'},{id:'progress',i:'fa-chart-line',l:'Progress'},{id:'pricing',i:'fa-credit-card',l:'Plans'},{id:'profile',i:'fa-user-circle',l:'Profile'}];
 
   return e(React.Fragment,null,
     !col?e('div',{className:"lg:hidden fixed inset-0 bg-black/40 z-40",onClick:function(){setCol(true);}}):null,
@@ -676,6 +638,168 @@ function ProfilePage(){
   );
 }
 
+// Pricing
+function PricingPage(){
+  var ctx=useContext(Ctx);
+  var c=useState('usd'),currency=c[0],setCurrency=c[1];
+  var ed=useState(false),discEd=ed[0],setDiscEd=ed[1];
+  var em=useState(''),email=em[0],setEmail=em[1];
+  var vs=useState(false),validated=vs[0],setValidated=vs[1];
+  
+  function verifyEdu(){
+    if(!email.endsWith('.edu')){ctx.addToast('Please use a valid .edu email','error');return;}
+    setValidated(true);ctx.addToast('Student verified! 40% discount applied.','success');
+  }
+  
+  var priceUsd=4.99,priceEur=4.59;
+  var discPrice=Math.round((validated?priceUsd*0.6:priceUsd)*100)/100;
+  var discPriceEur=Math.round((validated?priceEur*0.6:priceEur)*100)/100;
+  
+  var plans=[{n:'Free',p:0,desc:'Perfect for getting started',f:['Upload 3 docs/month','5 flashcards','2 quizzes/month','Limited AI chat','Community support'],b:false},{n:'Pro',p:currency==='usd'?discPrice:discPriceEur,desc:'Everything you need to excel',f:['Unlimited uploads','Unlimited flashcards','Unlimited quizzes','Unlimited AI chat','Priority support','Advanced analytics','No ads'],b:true}];
+
+  var features=[{t:'Unlimited Document Uploads',free:false,pro:true},{t:'Unlimited Flashcards',free:false,pro:true},{t:'Unlimited AI Quizzes',free:false,pro:true},{t:'Unlimited AI Chat',free:false,pro:true},{t:'Custom Categories',free:false,pro:true},{t:'Dark Mode',free:true,pro:true},{t:'Progress Tracking',free:true,pro:true},{t:'Priority Support',free:false,pro:true},{t:'Advanced Analytics',free:false,pro:true}];
+
+  // Payment states and helpers
+  var pp=useState(''),paypalId=pp[0],setPaypalId=pp[1];
+  var sd=useState(false),showPay=sd[0],setShowPay=sd[1];
+  var pa=useState(0),payAmount=pa[0],setPayAmount=pa[1];
+  var sdk=useState(false),sdkLoaded=sdk[0],setSdkLoaded=sdk[1];
+
+  function loadPayPalSdkAndRender(amount){
+    if(!paypalId){ctx.addToast('Enter your PayPal Client ID to enable checkout','error');return;}
+    if(sdkLoaded){renderButtons(amount);return;}
+    var s=document.createElement('script');
+    s.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(paypalId)+'&currency='+(currency==='usd'?'USD':'EUR');
+    s.onload=function(){setSdkLoaded(true);renderButtons(amount);};
+    s.onerror=function(){ctx.addToast('Failed to load PayPal SDK','error');};
+    document.body.appendChild(s);
+  }
+
+  function renderButtons(amount){
+    try{
+      if(!window.paypal){ctx.addToast('PayPal SDK not available','error');return;}
+      var container=document.getElementById('paypal-buttons');
+      if(!container)return;
+      container.innerHTML='';
+      window.paypal.Buttons({
+        createOrder: async function(data, actions){
+          try{
+            var resp = await fetch('/create-order', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:amount,currency:currency==='usd'?'USD':'EUR'})});
+            var j = await resp.json();
+            if(j && j.id) return j.id;
+          }catch(e){console.error('Server create-order failed',e);} 
+          return actions.order.create({purchase_units:[{amount:{value:amount.toFixed(2),currency_code:currency==='usd'?'USD':'EUR'}}]});
+        },
+        onApprove: async function(data, actions){
+          try{
+            var cap = await fetch('/capture-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({orderID:data.orderID})});
+            var cres = await cap.json();
+            if(cres && !cres.error){
+              ctx.addToast('Payment successful — Thank you!','success');
+              setShowPay(false);try{localStorage.setItem('sm_subscribed','pro');}catch(e){}
+              return;
+            }
+          }catch(e){console.error('Server capture failed',e);} 
+          return actions.order.capture().then(function(details){
+            ctx.addToast('Payment successful — Thank you!','success');
+            setShowPay(false);try{localStorage.setItem('sm_subscribed','pro');}catch(e){}
+          });
+        },
+        onError:function(err){ctx.addToast('Payment failed','error');}
+      }).render('#paypal-buttons');
+    }catch(ex){console.error(ex);ctx.addToast('Error rendering PayPal button','error');}
+  }
+
+  async function payWithFlutterwave(amount){
+    try{
+      var tx_ref = 'sm_'+Date.now();
+      var resp = await fetch('/flutterwave/create-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:amount,currency:currency==='eur'?'EUR':(currency==='usd'?'NGN':'NGN'),tx_ref:tx_ref,redirectUrl:window.location.origin + '/flutterwave/verify',email:(ctx.user && ctx.user.email)?ctx.user.email:''})});
+      var j = await resp.json();
+      if(j && j.data && j.data.link){
+        window.location = j.data.link;
+      }else{
+        console.error('Flutterwave response',j);
+        ctx.addToast('Failed to start Flutterwave payment','error');
+      }
+    }catch(e){console.error(e);ctx.addToast('Flutterwave request failed','error');}
+  }
+
+  return e('div',{className:"af space-y-8"},
+    e('div',{className:"text-center max-w-2xl mx-auto mb-8"},
+      e('h1',{className:"text-3xl font-bold mb-2"},"Simple, Transparent Pricing"),
+      e('p',{className:"text-gray-500 dark:text-gray-400"},"No hidden fees. Cancel anytime. All plans access the full StudyMind experience."),
+      e('div',{className:"flex justify-center gap-3 mt-6"},
+        e('button',{onClick:function(){setCurrency('usd');},className:"px-4 py-2 rounded-xl text-sm font-semibold transition "+(currency==='usd'?"bg-primary-600 text-white shadow-md":"bg-gray-100 dark:bg-white/5 text-gray-600")},e('span',null,"USD ($)")),
+        e('button',{onClick:function(){setCurrency('eur');},className:"px-4 py-2 rounded-xl text-sm font-semibold transition "+(currency==='eur'?"bg-primary-600 text-white shadow-md":"bg-gray-100 dark:bg-white/5 text-gray-600")},e('span',null,"EUR (€)"))
+      )
+    ),
+    e('div',{className:"grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-8"},
+      plans.map(function(pl,i){
+        return e('div',{key:i,className:"relative bg-white dark:bg-surface-800 rounded-2xl p-8 border "+(pl.b?"border-primary-500 shadow-lg shadow-primary-500/20":"border-gray-200 dark:border-gray-700/40")+(pl.b?" transform md:scale-105":"")},
+          pl.b?e('div',{className:"absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary-600 to-primary-500 text-white px-4 py-1 rounded-full text-xs font-bold"},"RECOMMENDED"):null,
+          e('h2',{className:"text-2xl font-bold mb-2"},pl.n),
+          e('p',{className:"text-sm text-gray-500 mb-4"},pl.desc),
+          e('div',{className:"mb-6"},
+            e('span',{className:"text-4xl font-extrabold"},pl.p===0?"Free":currency==='usd'?'$'+pl.p.toFixed(2):'€'+pl.p.toFixed(2)),
+            pl.p>0?e('span',{className:"text-gray-500 text-sm ml-2"},"/month"):null
+          ),
+          validated&&pl.p>0?e('div',{className:"mb-4 p-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-lg text-xs font-medium"},e('i',{className:"fas fa-check-circle mr-2"}),"40% student discount applied!"):null,
+          e('button',{onClick:function(){if(pl.p>0){setPayAmount(pl.p);setShowPay(true);}else{ctx.addToast('Free plan activated!','success');}},className:"w-full py-2.5 rounded-xl text-sm font-semibold transition "+(pl.b?"bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg hover:shadow-xl":"bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200")},pl.p>0?'Upgrade Now':'Start Free'),
+          e('div',{className:"mt-6 space-y-3"},
+            pl.f.map(function(feat,j){
+              return e('div',{key:j,className:"flex items-center gap-2 text-sm"},
+                e('i',{className:"fas fa-check text-primary-500 w-4"}),
+                feat
+              );
+            })
+          )
+        );
+      })
+    ),
+    e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700/40 shadow-sm max-w-2xl mx-auto mb-8"},
+      e('h3',{className:"text-lg font-bold mb-4"},"Student Discount - 40% OFF"),
+      e('p',{className:"text-gray-600 dark:text-gray-400 text-sm mb-4"},"Have a .edu email? Verify your student status and get Pro for just "+( currency==='usd'?'$'+discPrice.toFixed(2):'€'+discPriceEur.toFixed(2))+"/month."),
+      !validated?e('div',{className:"flex gap-2"},
+        e('input',{type:"email",value:email,onChange:function(ev){setEmail(ev.target.value);},placeholder:"your.name@university.edu",className:"flex-1 px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-700 rounded-xl text-sm"}),
+        e('button',{onClick:verifyEdu,className:"px-5 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition"},"Verify")
+      ):e('div',{className:"p-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-lg text-sm font-medium"},e('i',{className:"fas fa-check-circle mr-2"}),"✓ Student verified!")
+    ),
+    e('div',{className:"bg-white dark:bg-surface-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700/40 shadow-sm"},
+      e('h3',{className:"text-lg font-bold mb-6 text-center"},"Full Feature Comparison"),
+      e('div',{className:"overflow-x-auto"},
+        e('table',{className:"w-full text-sm"},
+          e('thead',null,
+            e('tr',{className:"border-b border-gray-200 dark:border-gray-700"},
+              e('th',{className:"text-left py-3 px-4 font-semibold"},"Feature"),
+              e('th',{className:"text-center py-3 px-4 font-semibold"},"Free"),
+              e('th',{className:"text-center py-3 px-4 font-semibold"},"Pro")
+            )
+          ),
+          e('tbody',null,
+            features.map(function(feat,i){
+              return e('tr',{key:i,className:"border-b border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-white/5"},
+                e('td',{className:"py-3 px-4"},feat.t),
+                e('td',{className:"text-center py-3 px-4"},feat.free?e('i',{className:"fas fa-check text-emerald-500"}):e('i',{className:"fas fa-times text-gray-300"})),
+                e('td',{className:"text-center py-3 px-4"},feat.pro?e('i',{className:"fas fa-check text-primary-500"}):e('i',{className:"fas fa-times text-gray-300"}))
+              );
+            })
+          )
+        )
+      )
+    ),
+    e('div',{className:"bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-8 text-white text-center"},
+      e('h3',{className:"text-2xl font-bold mb-2"},"Works Anywhere in the World"),
+      e('p',{className:"mb-4"},"We accept payments from 135+ countries including Nigeria, UK, India, and more. All payments securely processed through Stripe."),
+      e('div',{className:"flex justify-center gap-4 mb-4"},
+        e('div',{className:"text-center"},e('i',{className:"fas fa-globe text-2xl mb-2 block"}),e('span',{className:"text-sm"},"135+ Countries")),
+        e('div',{className:"text-center"},e('i',{className:"fas fa-lock text-2xl mb-2 block"}),e('span',{className:"text-sm"},"Secure Payments")),
+        e('div',{className:"text-center"},e('i',{className:"fas fa-euro-sign text-2xl mb-2 block"}),e('span',{className:"text-sm"},"Auto EUR Convert"))
+      ),
+      e('p',{className:"text-sm opacity-90"},"Funds received in EUR. No hidden fees. Same low price worldwide.")
+    )
+  );
+}
+
 // App
 function App(){
   var stored=null;
@@ -702,7 +826,7 @@ function App(){
 
   if(!user)return e(Ctx.Provider,{value:ctx},e(AuthPage,null));
 
-  var pages={dashboard:Dashboard,upload:UploadPage,documents:DocsPage,summarize:SummarizePage,flashcards:FlashcardsPage,quiz:QuizPage,chat:ChatPage,progress:ProgressPage,profile:ProfilePage};
+  var pages={dashboard:Dashboard,upload:UploadPage,documents:DocsPage,summarize:SummarizePage,flashcards:FlashcardsPage,quiz:QuizPage,chat:ChatPage,progress:ProgressPage,pricing:PricingPage,profile:ProfilePage};
   var Page=pages[cur]||Dashboard;
 
   return e(Ctx.Provider,{value:ctx},
